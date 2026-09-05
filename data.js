@@ -76,41 +76,6 @@ const WEAPON_DATA = {
           "note": ""
         }
       ]
-    },
-    {
-      "id": "vanguard",
-      "title": "先锋作战 / 日落挑战",
-      "weapons": []
-    },
-    {
-      "id": "crucible",
-      "title": "熔炉竞技场 / 试炼",
-      "weapons": []
-    },
-    {
-      "id": "gambit",
-      "title": "博弈",
-      "weapons": []
-    },
-    {
-      "id": "vendor",
-      "title": "商人兑换 / 聚焦",
-      "weapons": []
-    },
-    {
-      "id": "raid",
-      "title": "突袭",
-      "weapons": []
-    },
-    {
-      "id": "dungeon",
-      "title": "地牢",
-      "weapons": []
-    },
-    {
-      "id": "world",
-      "title": "世界掉落 / 其他",
-      "weapons": []
     }
   ]
 };

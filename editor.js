@@ -167,7 +167,7 @@
               <span class="editor-side-item-title">${escapeHtml(section.title)}</span>
               <span class="editor-side-item-meta">${count} 把武器</span>
             </div>
-            <div class="editor-side-item-tools" onclick="event.stopPropagation()">
+            <div class="editor-side-item-tools">
               <button type="button" class="icon-btn" data-action="move-section-up" data-section-id="${escapeAttr(section.id)}" title="上移">↑</button>
               <button type="button" class="icon-btn" data-action="move-section-down" data-section-id="${escapeAttr(section.id)}" title="下移">↓</button>
               <button type="button" class="icon-btn danger" data-action="delete-section" data-section-id="${escapeAttr(section.id)}" title="删除">×</button>
@@ -193,7 +193,7 @@
               <span class="editor-side-item-title">${escapeHtml(name)}</span>
               <span class="editor-side-item-meta">${escapeHtml(weaponSummary(w))}</span>
             </div>
-            <div class="editor-side-item-tools" onclick="event.stopPropagation()">
+            <div class="editor-side-item-tools">
               <button type="button" class="icon-btn" data-action="move-weapon-up" data-weapon-index="${i}" title="上移">↑</button>
               <button type="button" class="icon-btn" data-action="move-weapon-down" data-weapon-index="${i}" title="下移">↓</button>
               <button type="button" class="icon-btn danger" data-action="delete-weapon" data-weapon-index="${i}" title="删除">×</button>
