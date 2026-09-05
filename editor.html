@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Destiny 2 · 武器清单编辑</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Orbitron:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="editor-page">
+    <div class="bg-grid" aria-hidden="true"></div>
+
+    <div class="page page-wide">
+      <header class="hero hero-compact">
+        <div class="hero-top">
+          <div>
+            <p class="hero-kicker">Destiny 2 · Editor</p>
+            <h1>武器清单编辑器</h1>
+            <p class="hero-note">
+              像表格一样直接填写。可用「导出分享页」生成单文件只读 HTML（发给别人或上传得链接）。
+              「导出 data.js」用于备份工程数据。
+            </p>
+          </div>
+          <nav class="nav-links">
+            <a class="nav-link" href="index.html">查看清单</a>
+          </nav>
+        </div>
+      </header>
+
+      <div id="status-bar" class="status-bar" hidden></div>
+
+      <section class="meta-panel">
+        <div class="field">
+          <label for="meta-title">清单标题</label>
+          <input id="meta-title" type="text" />
+        </div>
+        <div class="field field-grow">
+          <label for="meta-note">说明文字</label>
+          <input id="meta-note" type="text" />
+        </div>
+      </section>
+
+      <div class="editor-actions">
+        <button type="button" class="btn-primary" id="btn-add-section">＋ 添加获取途径</button>
+        <button type="button" class="btn-secondary" id="btn-export-share">导出分享页（单文件）</button>
+        <button type="button" class="btn-secondary" id="btn-export">导出 data.js</button>
+        <label class="btn-secondary btn-file">
+          导入 data.js
+          <input type="file" id="btn-import" accept=".js,text/javascript,application/javascript" hidden />
+        </label>
+        <button type="button" class="btn-ghost" id="btn-reload-file">从文件重新加载</button>
+        <span class="save-hint" id="save-hint">尚未修改</span>
+      </div>
+
+      <main id="editor-root" class="editor-root"></main>
+
+      <p class="footer-hint">
+        <strong>单文件分享：</strong>点「导出分享页（单文件）」下载 HTML，发给对方双击即可只读查看。<br />
+        <strong>链接分享：</strong>把该 HTML 拖到
+        <a href="https://app.netlify.com/drop" target="_blank" rel="noopener">Netlify Drop</a>
+        ，或放入 GitHub Pages / Cloudflare Pages；也可在本目录运行
+        <code>node build-share.mjs</code> 生成 <code>share.html</code> 再托管。<br />
+        本地草稿会自动保存在浏览器；工程备份请用「导出 data.js」覆盖同目录文件。
+      </p>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="storage.js"></script>
+    <script src="share-builder.js"></script>
+    <script src="editor.js"></script>
+  </body>
+</html>
