@@ -66,6 +66,7 @@ function emptyWeapon() {
     ratingPve: "",
     ratingPvp: "",
     frame: "",
+    rpm: "",
     element: "",
     antiChamp: "",
     showPvePerk: true,
@@ -166,6 +167,26 @@ function hasRollContent(weapon, mode) {
   );
 }
 
+function splitLegacyFrame(frame) {
+  const raw = String(frame || "").trim();
+  if (!raw) return { frame: "", rpm: "" };
+  const parts = raw.split(/\s*[·•]\s*/);
+  if (parts.length >= 2) {
+    return {
+      frame: parts[0].trim(),
+      rpm: parts.slice(1).join(" · ").trim(),
+    };
+  }
+  return { frame: raw, rpm: "" };
+}
+
+function formatFrameRpm(weapon) {
+  const frame = String(weapon.frame || "").trim();
+  const rpm = String(weapon.rpm || "").trim();
+  if (frame && rpm) return `${frame}\n${rpm}`;
+  return frame || rpm || "—";
+}
+
 function migrateLegacyWeapon(weapon) {
   const next = { ...emptyWeapon(), ...weapon };
 
@@ -176,6 +197,15 @@ function migrateLegacyWeapon(weapon) {
   if (weapon.rating && !weapon.ratingPve) next.ratingPve = weapon.rating;
   if (weapon.perk3 && !weapon.perk3Pve) next.perk3Pve = weapon.perk3;
   if (weapon.perk4 && !weapon.perk4Pve) next.perk4Pve = weapon.perk4;
+
+  // 旧「框架 · 射速」合并字符串 → 拆成两栏
+  if (!weapon.rpm && weapon.frame && /[·•]/.test(String(weapon.frame))) {
+    const split = splitLegacyFrame(weapon.frame);
+    next.frame = split.frame;
+    next.rpm = split.rpm;
+  } else if (typeof weapon.rpm !== "string") {
+    next.rpm = weapon.rpm == null ? "" : String(weapon.rpm);
+  }
 
   if (typeof weapon.showPvePerk !== "boolean") next.showPvePerk = true;
   if (typeof weapon.showPvpPerk !== "boolean") next.showPvpPerk = true;

@@ -69,6 +69,7 @@
         weapon.weaponType,
         weapon.ammoType,
         weapon.frame,
+        weapon.rpm,
         weapon.element,
         weapon.antiChamp,
         weapon.ratingPve,
@@ -140,6 +141,23 @@
     return td(tint(text, className), extraClass, rowspan, text);
   }
 
+  function frameCell(weapon, rowspan) {
+    const frame = String(weapon.frame || "").trim();
+    const rpm = String(weapon.rpm || "").trim();
+    const rs = rowspan > 1 ? ` rowspan="${rowspan}"` : "";
+    let inner = "—";
+    let tip = "";
+    if (frame && rpm) {
+      inner = `<span class="frame-line">${escapeHtml(frame)}</span><span class="frame-line">${escapeHtml(rpm)}</span>`;
+      tip = ` title="${escapeHtml(`${frame} / ${rpm}`)}"`;
+    } else if (frame || rpm) {
+      const only = frame || rpm;
+      inner = `<span class="frame-line">${escapeHtml(only)}</span>`;
+      tip = ` title="${escapeHtml(only)}"`;
+    }
+    return `<td class="frame-cell"${rs}${tip}>${inner}</td>`;
+  }
+
   function baseCells(weapon, rowspan) {
     return [
       plainCell(weapon.name, "name-cell", rowspan),
@@ -147,7 +165,7 @@
       tintCell(weapon.ammoType, ammoClass(weapon.ammoType), "", rowspan),
       tintCell(weapon.ratingPve, ratingClass(weapon.ratingPve), "cell-pve", rowspan),
       tintCell(weapon.ratingPvp, ratingClass(weapon.ratingPvp), "cell-pvp", rowspan),
-      plainCell(weapon.frame, "frame-cell", rowspan),
+      frameCell(weapon, rowspan),
       tintCell(weapon.element, elementClass(weapon.element), "", rowspan),
       plainCell(weapon.antiChamp, "champ", rowspan),
     ].join("");
@@ -160,6 +178,27 @@
 
   function cell(value, extraClass) {
     return plainCell(value, extraClass, 1);
+  }
+
+  /** Perk 含 `/` 时在查看页格内分行（不显示斜杠） */
+  function perkCell(value, extraClass) {
+    const raw = String(value || "").trim();
+    if (!raw) return td("—", extraClass, 1, "—");
+    if (!raw.includes("/")) {
+      return td(escapeHtml(raw), extraClass, 1, raw);
+    }
+    const parts = raw
+      .split("/")
+      .map((part) => part.trim())
+      .filter(Boolean);
+    if (parts.length <= 1) {
+      return td(escapeHtml(raw), extraClass, 1, raw);
+    }
+    const inner = parts
+      .map((part) => `<span class="perk-line">${escapeHtml(part)}</span>`)
+      .join("");
+    const cls = extraClass ? `${extraClass} perk-multiline` : "perk-multiline";
+    return td(inner, cls, 1, raw);
   }
 
   function emptyPerkCells() {
@@ -177,18 +216,18 @@
       <td class="mode-tag-cell cell-pve">PVE</td>
       ${cell("—", "perk-cell cell-pve")}
       ${cell("—", "perk-cell cell-pve")}
-      ${cell(weapon.perk3Pve, "perk-cell cell-pve")}
-      ${cell(weapon.perk4Pve, "perk-cell cell-pve")}
+      ${perkCell(weapon.perk3Pve, "perk-cell cell-pve")}
+      ${perkCell(weapon.perk4Pve, "perk-cell cell-pve")}
     `;
   }
 
   function bothPerkCellsPvp(weapon) {
     return `
       <td class="mode-tag-cell cell-pvp">PVP</td>
-      ${cell(weapon.perk1Pvp, "perk-cell cell-pvp")}
-      ${cell(weapon.perk2Pvp, "perk-cell cell-pvp")}
-      ${cell(weapon.perk3Pvp, "perk-cell cell-pvp")}
-      ${cell(weapon.perk4Pvp, "perk-cell cell-pvp")}
+      ${perkCell(weapon.perk1Pvp, "perk-cell cell-pvp")}
+      ${perkCell(weapon.perk2Pvp, "perk-cell cell-pvp")}
+      ${perkCell(weapon.perk3Pvp, "perk-cell cell-pvp")}
+      ${perkCell(weapon.perk4Pvp, "perk-cell cell-pvp")}
     `;
   }
 
@@ -291,7 +330,7 @@
           <th rowspan="2">弹药类型</th>
           <th class="th-pve" rowspan="2">PVE评级</th>
           <th class="th-pvp" rowspan="2">PVP评级</th>
-          <th rowspan="2">框架射速</th>
+          <th rowspan="2">框架/射速</th>
           <th rowspan="2">属性</th>
           <th rowspan="2">反勇士</th>
           <th class="th-group" colspan="5">Perk 组合</th>
