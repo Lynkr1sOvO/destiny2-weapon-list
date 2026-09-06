@@ -322,6 +322,26 @@ const WEAPON_DATA = {
           "perk3Pvp": "治疗弹匣/永动不歇/测距仪/移动目标",
           "perk4Pvp": "杀戮弹匣/精准工具",
           "note": ""
+        },
+        {
+          "name": "棘蛇",
+          "weaponType": "微型冲锋枪",
+          "ammoType": "主要",
+          "ratingPve": "B",
+          "ratingPvp": "C+",
+          "frame": "轻质",
+          "rpm": "900",
+          "element": "烈日",
+          "antiChamp": "过载",
+          "showPvePerk": true,
+          "showPvpPerk": true,
+          "perk3Pve": "喂食狂热/治疗弹匣",
+          "perk4Pve": "蜻蜓/燃烧野心",
+          "perk1Pvp": "锻造膛线/小口径枪膛",
+          "perk2Pvp": "精确弹药",
+          "perk3Pvp": "治疗弹匣/禅意时刻/动态减摆",
+          "perk4Pvp": "测距仪/移动目标",
+          "note": ""
         }
       ]
     }

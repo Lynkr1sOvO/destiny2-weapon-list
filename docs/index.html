@@ -596,6 +596,22 @@ th.th-pvp {
   flex-wrap: wrap;
 }
 
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.55rem;
+  flex-shrink: 0;
+}
+
+.last-updated {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--text-mute);
+  white-space: nowrap;
+}
+
 .hero-compact {
   margin-bottom: 1.1rem;
   padding-bottom: 1.1rem;
@@ -1113,6 +1129,9 @@ th.th-pvp {
           <h1 id="season-title">本赛季可获取武器清单</h1>
           <p class="hero-note" id="season-note"></p>
         </div>
+        <div class="hero-actions">
+          <p class="last-updated" id="last-updated" hidden></p>
+        </div>
       </div>
       <div class="stats">
         <div class="stat">
@@ -1519,10 +1538,31 @@ const WEAPON_DATA = {
           "perk3Pvp": "治疗弹匣/永动不歇/测距仪/移动目标",
           "perk4Pvp": "杀戮弹匣/精准工具",
           "note": ""
+        },
+        {
+          "name": "棘蛇",
+          "weaponType": "微型冲锋枪",
+          "ammoType": "主要",
+          "ratingPve": "B",
+          "ratingPvp": "C+",
+          "frame": "轻质",
+          "rpm": "900",
+          "element": "烈日",
+          "antiChamp": "过载",
+          "showPvePerk": true,
+          "showPvpPerk": true,
+          "perk3Pve": "喂食狂热/治疗弹匣",
+          "perk4Pve": "蜻蜓/燃烧野心",
+          "perk1Pvp": "锻造膛线/小口径枪膛",
+          "perk2Pvp": "精确弹药",
+          "perk3Pvp": "治疗弹匣/禅意时刻/动态减摆",
+          "perk4Pvp": "测距仪/移动目标",
+          "note": ""
         }
       ]
     }
-  ]
+  ],
+  "updatedAt": "2026-09-06T12:39:21.130Z"
 };</script>
   <script>/** 本地草稿：编辑页写入，清单页优先读取 */
 const D2_STORAGE_KEY = "d2-weapon-list-draft";
@@ -1550,6 +1590,7 @@ function loadWeaponData() {
 }
 
 function saveWeaponDraft(data) {
+  touchUpdatedAt(data);
   localStorage.setItem(D2_STORAGE_KEY, JSON.stringify(data));
 }
 
@@ -1557,8 +1598,24 @@ function clearWeaponDraft() {
   localStorage.removeItem(D2_STORAGE_KEY);
 }
 
+function touchUpdatedAt(data) {
+  if (!data || typeof data !== "object") return data;
+  data.updatedAt = new Date().toISOString();
+  return data;
+}
+
+function formatUpdatedAt(value) {
+  if (!value) return "";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value).trim();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 function buildDataJs(data) {
-  const payload = JSON.stringify(data, null, 2);
+  const next = cloneData(data);
+  touchUpdatedAt(next);
+  const payload = JSON.stringify(next, null, 2);
   return `/**
  * ============================================================
  *  Destiny 2 本赛季武器清单 — 数据填写文件
@@ -1751,6 +1808,9 @@ function normalizeWeaponData(data) {
   const next = cloneData(data);
   delete next.showPvePerk;
   delete next.showPvpPerk;
+  if (typeof next.updatedAt !== "string") {
+    next.updatedAt = next.updatedAt == null ? "" : String(next.updatedAt);
+  }
   for (const section of next.sections || []) {
     if (typeof section.note !== "string") {
       section.note = section.note == null ? "" : String(section.note);
@@ -1786,6 +1846,7 @@ function makeSectionId(title) {
   const countSections = document.getElementById("count-sections");
   const seasonTitle = document.getElementById("season-title");
   const seasonNote = document.getElementById("season-note");
+  const lastUpdated = document.getElementById("last-updated");
   const draftBanner = document.getElementById("draft-banner");
 
   const loaded = loadWeaponData();
@@ -1803,6 +1864,17 @@ function makeSectionId(title) {
 
   seasonTitle.textContent = DATA.seasonTitle || "Destiny 2 武器清单";
   seasonNote.textContent = DATA.seasonNote || "";
+
+  const updatedText = formatUpdatedAt(DATA.updatedAt);
+  if (lastUpdated) {
+    if (updatedText) {
+      lastUpdated.hidden = false;
+      lastUpdated.textContent = `最后更新 ${updatedText}`;
+    } else {
+      lastUpdated.hidden = true;
+      lastUpdated.textContent = "";
+    }
+  }
 
   const totalWeapons = DATA.sections.reduce(
     (sum, s) => sum + (s.weapons?.length || 0),

@@ -14,6 +14,7 @@
   const countSections = document.getElementById("count-sections");
   const seasonTitle = document.getElementById("season-title");
   const seasonNote = document.getElementById("season-note");
+  const lastUpdated = document.getElementById("last-updated");
   const draftBanner = document.getElementById("draft-banner");
 
   const loaded = loadWeaponData();
@@ -31,6 +32,17 @@
 
   seasonTitle.textContent = DATA.seasonTitle || "Destiny 2 武器清单";
   seasonNote.textContent = DATA.seasonNote || "";
+
+  const updatedText = formatUpdatedAt(DATA.updatedAt);
+  if (lastUpdated) {
+    if (updatedText) {
+      lastUpdated.hidden = false;
+      lastUpdated.textContent = `最后更新 ${updatedText}`;
+    } else {
+      lastUpdated.hidden = true;
+      lastUpdated.textContent = "";
+    }
+  }
 
   const totalWeapons = DATA.sections.reduce(
     (sum, s) => sum + (s.weapons?.length || 0),

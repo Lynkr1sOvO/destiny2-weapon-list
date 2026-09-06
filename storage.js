@@ -24,6 +24,7 @@ function loadWeaponData() {
 }
 
 function saveWeaponDraft(data) {
+  touchUpdatedAt(data);
   localStorage.setItem(D2_STORAGE_KEY, JSON.stringify(data));
 }
 
@@ -31,8 +32,24 @@ function clearWeaponDraft() {
   localStorage.removeItem(D2_STORAGE_KEY);
 }
 
+function touchUpdatedAt(data) {
+  if (!data || typeof data !== "object") return data;
+  data.updatedAt = new Date().toISOString();
+  return data;
+}
+
+function formatUpdatedAt(value) {
+  if (!value) return "";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value).trim();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 function buildDataJs(data) {
-  const payload = JSON.stringify(data, null, 2);
+  const next = cloneData(data);
+  touchUpdatedAt(next);
+  const payload = JSON.stringify(next, null, 2);
   return `/**
  * ============================================================
  *  Destiny 2 本赛季武器清单 — 数据填写文件
@@ -225,6 +242,9 @@ function normalizeWeaponData(data) {
   const next = cloneData(data);
   delete next.showPvePerk;
   delete next.showPvpPerk;
+  if (typeof next.updatedAt !== "string") {
+    next.updatedAt = next.updatedAt == null ? "" : String(next.updatedAt);
+  }
   for (const section of next.sections || []) {
     if (typeof section.note !== "string") {
       section.note = section.note == null ? "" : String(section.note);

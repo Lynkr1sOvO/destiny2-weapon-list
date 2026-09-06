@@ -5,6 +5,7 @@
  */
 function buildShareHtml(data, assets) {
   const normalized = normalizeWeaponData(data);
+  touchUpdatedAt(normalized);
   const payload = JSON.stringify(normalized, null, 2);
   const pageTitle = escapeHtmlText(
     normalized.seasonTitle || "Destiny 2 武器清单"
@@ -39,6 +40,9 @@ ${css}
           <p class="hero-kicker">Destiny 2 · 只读分享</p>
           <h1 id="season-title">本赛季可获取武器清单</h1>
           <p class="hero-note" id="season-note"></p>
+        </div>
+        <div class="hero-actions">
+          <p class="last-updated" id="last-updated" hidden></p>
         </div>
       </div>
       <div class="stats">
