@@ -13,7 +13,7 @@ const WEAPON_DATA = {
   "sections": [
     {
       "id": "seasonal",
-      "title": "扭曲",
+      "title": "扭曲目的地",
       "weapons": [
         {
           "name": "塔霍马01",
@@ -100,19 +100,19 @@ const WEAPON_DATA = {
           "weaponType": "狙击步枪",
           "ammoType": "特殊",
           "ratingPve": "C+",
-          "ratingPvp": "",
+          "ratingPvp": "C+",
           "frame": "适配",
           "rpm": "90",
           "element": "缚丝",
           "antiChamp": "屏障",
           "showPvePerk": true,
-          "showPvpPerk": false,
+          "showPvpPerk": true,
           "perk3Pve": "事不过四",
           "perk4Pve": "火线/精准工具/超级杀戮弹匣",
-          "perk1Pvp": "",
-          "perk2Pvp": "",
-          "perk3Pvp": "",
-          "perk4Pvp": "",
+          "perk1Pvp": "槽化枪管",
+          "perk2Pvp": "稳固弹药",
+          "perk3Pvp": "孤狼",
+          "perk4Pvp": "移动目标",
           "note": ""
         },
         {
@@ -137,6 +137,33 @@ const WEAPON_DATA = {
         }
       ],
       "note": "在每小时轮换的扭曲目的地，完成公共事件或开启异常信号奖励箱获取"
+    },
+    {
+      "id": "世界掉落-mtpqchmi",
+      "title": "世界掉落",
+      "note": "",
+      "weapons": [
+        {
+          "name": "钢羽中继器",
+          "weaponType": "自动步枪",
+          "ammoType": "主要",
+          "ratingPve": "D",
+          "ratingPvp": "",
+          "frame": "速射",
+          "rpm": "720",
+          "element": "动能",
+          "antiChamp": "过载",
+          "showPvePerk": false,
+          "showPvpPerk": false,
+          "perk3Pve": "",
+          "perk4Pve": "",
+          "perk1Pvp": "",
+          "perk2Pvp": "",
+          "perk3Pvp": "",
+          "perk4Pvp": "",
+          "note": "怎么会有perk池这么垃圾的ar……"
+        }
+      ]
     }
   ]
 };
