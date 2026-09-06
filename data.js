@@ -2054,7 +2054,7 @@ const WEAPON_DATA = {
         },
         {
           "name": "牡鹿之角",
-          "weaponType": "弓箭",
+          "weaponType": "战斗弓箭",
           "ammoType": "",
           "ratingPve": "",
           "ratingPvp": "",
@@ -2161,7 +2161,7 @@ const WEAPON_DATA = {
         },
         {
           "name": "噤声",
-          "weaponType": "弓箭",
+          "weaponType": "战斗弓箭",
           "ammoType": "",
           "ratingPve": "",
           "ratingPvp": "",

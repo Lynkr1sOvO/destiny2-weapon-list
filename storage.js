@@ -104,7 +104,7 @@ const WEAPON_TYPES = [
   "手枪",
   "手炮",
   "脉冲步枪",
-  "弓箭",
+  "战斗弓箭",
   "斥候步枪",
   "霰弹枪",
   "追踪步枪",
@@ -113,7 +113,6 @@ const WEAPON_TYPES = [
   "偃月",
   "火箭发射器",
   "线性融合步枪",
-  "战斗弓箭",
   "榴弹发射器",
   "机枪",
   "刀剑",
@@ -209,6 +208,11 @@ function migrateLegacyWeapon(weapon) {
 
   next.element = normalizeElementName(next.element);
   next.antiChamp = normalizeChampName(next.antiChamp);
+
+  // 「弓箭」与「战斗弓箭」合并为战斗弓箭
+  if (String(next.weaponType || "").trim() === "弓箭") {
+    next.weaponType = "战斗弓箭";
+  }
 
   // 旧单套字段 → 迁到 PVE（仅保留 3/4）
   if (weapon.rating && !weapon.ratingPve) next.ratingPve = weapon.rating;
