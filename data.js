@@ -342,6 +342,26 @@ const WEAPON_DATA = {
           "perk3Pvp": "治疗弹匣/禅意时刻/动态减摆",
           "perk4Pvp": "测距仪/移动目标",
           "note": ""
+        },
+        {
+          "name": "黄铜攻击",
+          "weaponType": "手枪",
+          "ammoType": "主要",
+          "ratingPve": "A+",
+          "ratingPvp": "B",
+          "frame": "重型点射",
+          "rpm": "325",
+          "element": "虚空",
+          "antiChamp": "势不可挡",
+          "showPvePerk": true,
+          "showPvpPerk": true,
+          "perk3Pve": "冲击支撑",
+          "perk4Pve": "失衡弹药/狂乱",
+          "perk1Pvp": "加长枪管/锻造膛线",
+          "perk2Pvp": "大口径弹药/弹跳型弹药",
+          "perk3Pvp": "滑行健射/快速命中1",
+          "perk4Pvp": "失衡弹药/狂暴",
+          "note": ""
         }
       ]
     }

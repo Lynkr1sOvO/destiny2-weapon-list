@@ -128,10 +128,6 @@ ${css}
     </div>
 
     <main id="app"></main>
-
-    <p class="footer-hint">
-      这是只读分享页，数据为导出时的快照，无法在此修改。若需更新内容，请由维护者重新导出后替换本文件或重新上传托管。
-    </p>
   </div>
 
   <script>${dataJs}</script>
