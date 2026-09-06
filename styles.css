@@ -307,7 +307,7 @@ body {
 table,
 .weapon-table {
   width: 100%;
-  min-width: 1100px;
+  min-width: 1220px;
   table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.82rem;
@@ -322,7 +322,7 @@ table,
 .weapon-table col.col-champ { width: 5.2rem; }
 .weapon-table col.col-mode { width: 3.4rem; }
 .weapon-table col.col-perk { width: 7rem; }
-.weapon-table col.col-note { width: 7rem; }
+.weapon-table col.col-note { width: 12.5rem; }
 
 th,
 td {
@@ -371,6 +371,22 @@ tbody tr.weapon-row:hover {
 
 .note-cell {
   color: var(--text-dim);
+}
+
+.weapon-table td.note-cell {
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-align: left;
+  line-height: 1.35;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 2.75rem;
+  overflow: visible !important;
+  text-overflow: unset;
+  vertical-align: middle;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
 }
 
 .perk-cell {
@@ -557,10 +573,6 @@ th.th-pvp {
   th,
   td {
     padding: 0.55rem 0.65rem;
-  }
-
-  .note-cell {
-    max-width: 12rem;
   }
 }
 
