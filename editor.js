@@ -139,9 +139,13 @@
     state.seasonTitle = metaTitle.value.trim();
     state.seasonNote = metaNote.value.trim();
     const rename = root.querySelector("#section-rename");
+    const noteInput = root.querySelector("#section-note");
     const section = currentSection();
     if (rename && section) {
       section.title = rename.value.trim() || "未命名途径";
+    }
+    if (noteInput && section) {
+      section.note = noteInput.value.trim();
     }
     readFormIntoWeapon();
   }
@@ -343,7 +347,8 @@
               <h3>武器列表</h3>
               <button type="button" class="btn-secondary sm" data-action="add-weapon">＋ 添加</button>
             </div>
-            <input id="section-rename" class="editor-section-rename" type="text" value="${escapeAttr(section?.title || "")}" aria-label="获取途径名称" />
+            <input id="section-rename" class="editor-section-rename" type="text" value="${escapeAttr(section?.title || "")}" aria-label="获取途径名称" placeholder="获取途径名称" />
+            <input id="section-note" class="editor-section-note" type="text" value="${escapeAttr(section?.note || "")}" aria-label="获取途径备注" placeholder="途径备注（显示在查看页标题旁）" />
             <div class="editor-side-list" id="weapon-list">${weaponListHtml(section)}</div>
           </div>
         </aside>
@@ -400,6 +405,15 @@
           `.editor-side-item.is-active[data-action="select-section"] .editor-side-item-title`
         );
         if (active) active.textContent = section.title;
+      }
+      return;
+    }
+
+    if (target.id === "section-note") {
+      const section = currentSection();
+      if (section) {
+        section.note = target.value.trim();
+        scheduleSave();
       }
       return;
     }
@@ -567,6 +581,7 @@
     const section = {
       id: makeSectionId(title),
       title: title.trim() || "新获取途径",
+      note: "",
       weapons: [],
     };
     state.sections.push(section);

@@ -226,6 +226,9 @@ function normalizeWeaponData(data) {
   delete next.showPvePerk;
   delete next.showPvpPerk;
   for (const section of next.sections || []) {
+    if (typeof section.note !== "string") {
+      section.note = section.note == null ? "" : String(section.note);
+    }
     section.weapons = (section.weapons || []).map(migrateLegacyWeapon);
   }
   return next;

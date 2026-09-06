@@ -402,6 +402,11 @@
               <h2>${escapeHtml(section.title)}</h2>
               <span class="section-count">${weapons.length} / ${(section.weapons || []).length} 把</span>
             </div>
+            ${
+              String(section.note || "").trim()
+                ? `<span class="section-note">${escapeHtml(String(section.note).trim())}</span>`
+                : `<span class="section-note section-note-empty" aria-hidden="true"></span>`
+            }
             <span class="section-chevron" aria-hidden="true"></span>
           </button>
           <div class="section-body">
