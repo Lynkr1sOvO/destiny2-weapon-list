@@ -4,8 +4,9 @@
  * @param {{ css: string, storageJs: string, appJs: string }} assets
  */
 function buildShareHtml(data, assets) {
+  // Do not retouch updatedAt here — every rebuild would dirty share.html/docs
+  // and create an extra commit when publish push fails and is retried.
   const normalized = normalizeWeaponData(data);
-  touchUpdatedAt(normalized);
   const payload = JSON.stringify(normalized, null, 2);
   const pageTitle = escapeHtmlText(
     normalized.seasonTitle || "Destiny 2 武器清单"
