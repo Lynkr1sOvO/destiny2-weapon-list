@@ -805,39 +805,77 @@ th.th-pvp {
   border-color: rgba(232, 110, 90, 0.5);
 }
 
-/* —— Editor layout: list + form —— */
+/* —— Editor layout: left stack (pathways / weapons) + form —— */
 .editor-layout {
   display: grid;
   gap: 1rem;
-  align-items: start;
+  align-items: stretch;
   min-height: 28rem;
 }
 
 @media (min-width: 960px) {
   .editor-layout {
-    grid-template-columns: minmax(260px, 320px) 1fr;
+    grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+    grid-template-rows: minmax(9rem, 36vh) minmax(12rem, 1fr);
+    max-height: calc(100vh - 8rem);
+  }
+
+  .editor-pane-sections {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .editor-pane-weapons {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .editor-main {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    min-height: 0;
+    max-height: 100%;
+    overflow: auto;
   }
 }
 
-.editor-sidebar {
+.editor-pane {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.55rem;
+  min-height: 11rem;
+  max-height: none;
+  padding: 0.85rem;
   border: 1px solid var(--line);
   background: color-mix(in srgb, var(--bg-panel) 94%, transparent);
   box-shadow: var(--shadow);
-  max-height: calc(100vh - 8rem);
-  overflow: auto;
+  overflow: hidden;
 }
 
-.editor-side-block {
-  padding: 0.85rem;
-  border-bottom: 1px solid var(--line);
+@media (min-width: 960px) {
+  .editor-pane {
+    max-height: none;
+    height: 100%;
+    min-height: 0;
+  }
 }
 
-.editor-side-block:last-child {
-  border-bottom: 0;
+.editor-pane .editor-side-head {
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+
+.editor-pane .editor-section-rename,
+.editor-pane .editor-section-note {
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+
+.editor-pane .editor-side-list {
   flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .editor-side-head {

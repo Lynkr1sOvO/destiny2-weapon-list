@@ -185,7 +185,7 @@
   function weaponListHtml(section) {
     const weapons = section?.weapons || [];
     if (!weapons.length) {
-      return '<p class="editor-side-empty">暂无武器，点击下方添加</p>';
+      return '<p class="editor-side-empty">暂无武器，点击上方「添加」</p>';
     }
     return weapons
       .map((w, i) => {
@@ -324,6 +324,14 @@
     metaNote.value = state.seasonNote || "";
     ensureSelection();
 
+    const prevSectionScroll =
+      root.querySelector("#section-list")?.scrollTop ?? 0;
+    const prevWeaponScroll =
+      root.querySelector("#weapon-list")?.scrollTop ?? 0;
+    const keepWeaponScroll =
+      root.dataset.keepWeaponScroll === "1";
+    delete root.dataset.keepWeaponScroll;
+
     if (!state.sections.length) {
       root.innerHTML =
         '<p class="no-results">还没有获取途径。点击上方「添加获取途径」开始。</p>';
@@ -335,26 +343,31 @@
 
     root.innerHTML = `
       <div class="editor-layout">
-        <aside class="editor-sidebar">
-          <div class="editor-side-block">
-            <div class="editor-side-head">
-              <h3>获取途径</h3>
-            </div>
-            <div class="editor-side-list">${sectionListHtml()}</div>
+        <aside class="editor-pane editor-pane-sections">
+          <div class="editor-side-head">
+            <h3>获取途径</h3>
           </div>
-          <div class="editor-side-block">
-            <div class="editor-side-head">
-              <h3>武器列表</h3>
-              <button type="button" class="btn-secondary sm" data-action="add-weapon">＋ 添加</button>
-            </div>
-            <input id="section-rename" class="editor-section-rename" type="text" value="${escapeAttr(section?.title || "")}" aria-label="获取途径名称" placeholder="获取途径名称" />
-            <input id="section-note" class="editor-section-note" type="text" value="${escapeAttr(section?.note || "")}" aria-label="获取途径备注" placeholder="途径备注（显示在查看页标题旁）" />
-            <div class="editor-side-list" id="weapon-list">${weaponListHtml(section)}</div>
+          <div class="editor-side-list" id="section-list">${sectionListHtml()}</div>
+        </aside>
+        <aside class="editor-pane editor-pane-weapons">
+          <div class="editor-side-head">
+            <h3>武器列表</h3>
+            <button type="button" class="btn-secondary sm" data-action="add-weapon">＋ 添加</button>
           </div>
+          <input id="section-rename" class="editor-section-rename" type="text" value="${escapeAttr(section?.title || "")}" aria-label="获取途径名称" placeholder="获取途径名称" />
+          <input id="section-note" class="editor-section-note" type="text" value="${escapeAttr(section?.note || "")}" aria-label="获取途径备注" placeholder="途径备注（显示在查看页标题旁）" />
+          <div class="editor-side-list" id="weapon-list">${weaponListHtml(section)}</div>
         </aside>
         <section class="editor-main">${formHtml(weapon)}</section>
       </div>
     `;
+
+    const sectionList = root.querySelector("#section-list");
+    const weaponList = root.querySelector("#weapon-list");
+    if (sectionList) sectionList.scrollTop = prevSectionScroll;
+    if (weaponList) {
+      weaponList.scrollTop = keepWeaponScroll ? prevWeaponScroll : 0;
+    }
   }
 
   function updatePerkVisibility() {
@@ -387,6 +400,7 @@
     if (typeof preferWeaponIndex === "number") {
       selectedWeaponIndex = preferWeaponIndex;
     }
+    root.dataset.keepWeaponScroll = "1";
     render();
     markSaved();
   }
@@ -477,6 +491,7 @@
       selectedSectionId = actionable.dataset.sectionId;
       selectedWeaponIndex = 0;
       saveWeaponDraft(state);
+      // switching section: keep pathway list scroll, reset weapon list
       render();
       markSaved();
       return;
@@ -486,6 +501,7 @@
       syncAllFromDom();
       selectedWeaponIndex = Number(actionable.dataset.weaponIndex);
       saveWeaponDraft(state);
+      root.dataset.keepWeaponScroll = "1";
       render();
       markSaved();
       root.querySelector("#f-name")?.focus();
