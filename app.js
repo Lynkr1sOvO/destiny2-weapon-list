@@ -3,7 +3,7 @@
   const searchInput = document.getElementById("search");
   const typeFilter = document.getElementById("filter-type");
   const ammoFilter = document.getElementById("filter-ammo");
-  const ratingFilter = document.getElementById("filter-rating");
+  const sectionFilter = document.getElementById("filter-section");
   const elementFilter = document.getElementById("filter-element");
   const champFilter = document.getElementById("filter-champ");
   const viewShowPve = document.getElementById("view-show-pve");
@@ -44,10 +44,12 @@
     }
   }
 
-  const totalWeapons = DATA.sections.reduce(
-    (sum, s) => sum + (s.weapons?.length || 0),
-    0
-  );
+  const totalWeapons = Array.isArray(DATA.weapons)
+    ? DATA.weapons.length
+    : DATA.sections.reduce(
+        (sum, s) => sum + (s.weaponIds?.length || s.weapons?.length || 0),
+        0
+      );
   countTotal.textContent = String(totalWeapons);
   countSections.textContent = String(DATA.sections.length);
 
@@ -57,6 +59,14 @@
     opt.value = type;
     opt.textContent = type;
     typeFilter.appendChild(opt);
+  });
+
+  // 填充获取途径选项
+  DATA.sections.forEach((section) => {
+    const opt = document.createElement("option");
+    opt.value = section.id || section.title;
+    opt.textContent = section.title || section.id || "未命名途径";
+    sectionFilter.appendChild(opt);
   });
 
   function ratingClass(rating) {
@@ -105,13 +115,6 @@
 
     if (filters.ammoType && weapon.ammoType !== filters.ammoType) {
       return false;
-    }
-
-    if (filters.rating) {
-      const want = String(filters.rating).trim().toUpperCase();
-      const pve = String(weapon.ratingPve || "").trim().toUpperCase();
-      const pvp = String(weapon.ratingPvp || "").trim().toUpperCase();
-      if (pve !== want && pvp !== want) return false;
     }
 
     if (filters.element && weapon.element !== filters.element) return false;
@@ -185,7 +188,37 @@
 
   function noteCell(weapon, rowspan) {
     const text = weapon.note || "";
-    return td(escapeHtml(text), "note-cell", rowspan, text);
+    if (!text) return td("—", "note-cell", rowspan, "");
+    const inner = `<span class="note-text">${escapeHtml(text)}</span>`;
+    return td(inner, "note-cell", rowspan, text);
+  }
+
+  function weaponSourceLabels(weaponId) {
+    const ids = weaponSectionIds(DATA, weaponId);
+    const titleById = new Map(
+      (DATA.sections || []).map((section) => [
+        section.id,
+        section.title || section.id,
+      ])
+    );
+    return ids
+      .map((id) => titleById.get(id) || id)
+      .map((title) => String(title || "").trim())
+      .filter(Boolean);
+  }
+
+  /** 获取途径列（始终完整显示，多来源时分行） */
+  function sourcesCell(weapon, rowspan) {
+    const labels = weaponSourceLabels(weapon.id);
+    const rs = rowspan > 1 ? ` rowspan="${rowspan}"` : "";
+    if (!labels.length) {
+      return `<td class="sources-cell"${rs}>—</td>`;
+    }
+    const tip = labels.join(" / ");
+    const inner = labels
+      .map((label) => `<span class="sources-line">${escapeHtml(label)}</span>`)
+      .join("");
+    return `<td class="sources-cell"${rs} title="${escapeHtml(tip)}">${inner}</td>`;
   }
 
   function cell(value, extraClass) {
@@ -271,12 +304,16 @@
     return { visible: false, showPve: false, showPvp: false };
   }
 
-  function weaponRows(weapon, showPve, showPvp, pairClass) {
+  function weaponRows(weapon, showPve, showPvp, pairClass, showSources) {
+    const sourcePart = (rowspan) =>
+      showSources ? sourcesCell(weapon, rowspan) : "";
+
     if (showPve && showPvp) {
       return `
         <tr class="weapon-row ${pairClass}">
           ${baseCells(weapon, 2)}
           ${bothPerkCellsPve(weapon)}
+          ${sourcePart(2)}
           ${noteCell(weapon, 2)}
         </tr>
         <tr class="weapon-row weapon-row-cont ${pairClass}">
@@ -290,6 +327,7 @@
         <tr class="weapon-row ${pairClass}">
           ${baseCells(weapon, 1)}
           ${bothPerkCellsPve(weapon)}
+          ${sourcePart(1)}
           ${noteCell(weapon, 1)}
         </tr>
       `;
@@ -300,6 +338,7 @@
         <tr class="weapon-row ${pairClass}">
           ${baseCells(weapon, 1)}
           ${bothPerkCellsPvp(weapon)}
+          ${sourcePart(1)}
           ${noteCell(weapon, 1)}
         </tr>
       `;
@@ -309,12 +348,13 @@
       <tr class="weapon-row ${pairClass}">
         ${baseCells(weapon, 1)}
         ${emptyPerkCells()}
+        ${sourcePart(1)}
         ${noteCell(weapon, 1)}
       </tr>
     `;
   }
 
-  function colGroup() {
+  function colGroup(showSources) {
     return `<colgroup>
       <col class="col-name" />
       <col class="col-type" />
@@ -329,11 +369,12 @@
       <col class="col-perk" />
       <col class="col-perk" />
       <col class="col-perk" />
+      ${showSources ? '<col class="col-sources" />' : ""}
       <col class="col-note" />
     </colgroup>`;
   }
 
-  function tableHead() {
+  function tableHead(showSources) {
     return `
       <thead>
         <tr>
@@ -346,6 +387,7 @@
           <th rowspan="2">属性</th>
           <th rowspan="2">反勇士</th>
           <th class="th-group" colspan="5">Perk 组合</th>
+          ${showSources ? '<th rowspan="2">获取途径</th>' : ""}
           <th rowspan="2">备注</th>
         </tr>
         <tr>
@@ -359,6 +401,34 @@
     `;
   }
 
+  function renderWeaponTable(weapons, showSources, emptyMessage) {
+    const span = showSources ? 15 : 14;
+    const rows =
+      weapons.length > 0
+        ? weapons
+            .map((item, i) =>
+              weaponRows(
+                item.weapon,
+                item.display.showPve,
+                item.display.showPvp,
+                i % 2 === 0 ? "row-a" : "row-b",
+                showSources
+              )
+            )
+            .join("")
+        : `<tr class="empty-row"><td colspan="${span}">${emptyMessage}</td></tr>`;
+
+    return `
+      <div class="table-wrap">
+        <table class="weapon-table${showSources ? " weapon-table-with-sources" : ""}">
+          ${colGroup(showSources)}
+          ${tableHead(showSources)}
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
   function render() {
     const viewPve = viewShowPve.checked;
     const viewPvp = viewShowPvp.checked;
@@ -367,71 +437,92 @@
       q: searchInput.value.trim().toLowerCase(),
       weaponType: typeFilter.value,
       ammoType: ammoFilter.value,
-      rating: ratingFilter.value,
+      sectionId: sectionFilter.value,
       element: elementFilter.value,
       champ: champFilter.value,
     };
 
+    const showSources = !filters.sectionId;
     let visible = 0;
     const parts = [];
-    const span = 14;
 
-    for (const section of DATA.sections) {
-      const weapons = (section.weapons || [])
+    if (showSources) {
+      const catalog = Array.isArray(DATA.weapons) ? DATA.weapons : [];
+      const weapons = catalog
         .filter((w) => matchesFilters(w, filters))
-        .map((w) => ({ weapon: w, display: resolveDisplay(w, viewPve, viewPvp) }))
+        .map((w) => ({
+          weapon: w,
+          display: resolveDisplay(w, viewPve, viewPvp),
+        }))
         .filter((item) => item.display.visible);
 
-      visible += weapons.length;
-
-      const rows =
-        weapons.length > 0
-          ? weapons
-              .map((item, i) =>
-                weaponRows(
-                  item.weapon,
-                  item.display.showPve,
-                  item.display.showPvp,
-                  i % 2 === 0 ? "row-a" : "row-b"
-                )
-              )
-              .join("")
-          : `<tr class="empty-row"><td colspan="${span}">${
-              (section.weapons || []).length === 0
-                ? "此途径暂无武器，请在编辑器中添加"
-                : "当前筛选条件下无匹配武器"
-            }</td></tr>`;
-
-      const collapsed =
-        weapons.length === 0 && (section.weapons || []).length > 0
-          ? " collapsed"
-          : "";
-
+      visible = weapons.length;
       parts.push(`
-        <section class="section${collapsed}" data-section="${escapeHtml(section.id || section.title)}">
-          <button type="button" class="section-header" aria-expanded="${collapsed ? "false" : "true"}">
+        <section class="section" data-section="all">
+          <div class="section-header section-header-static">
             <div class="section-title">
-              <h2>${escapeHtml(section.title)}</h2>
-              <span class="section-count">${weapons.length} / ${(section.weapons || []).length} 把</span>
+              <h2>全部武器</h2>
+              <span class="section-count">${weapons.length} / ${catalog.length} 把</span>
             </div>
-            ${
-              String(section.note || "").trim()
-                ? `<span class="section-note">${escapeHtml(String(section.note).trim())}</span>`
-                : `<span class="section-note section-note-empty" aria-hidden="true"></span>`
-            }
-            <span class="section-chevron" aria-hidden="true"></span>
-          </button>
+          </div>
           <div class="section-body">
-            <div class="table-wrap">
-              <table class="weapon-table">
-                ${colGroup()}
-                ${tableHead()}
-                <tbody>${rows}</tbody>
-              </table>
-            </div>
+            ${renderWeaponTable(
+              weapons,
+              true,
+              catalog.length === 0
+                ? "暂无武器，请在编辑器中添加"
+                : "当前筛选条件下无匹配武器"
+            )}
           </div>
         </section>
       `);
+    } else {
+      for (const section of DATA.sections) {
+        const sectionKey = section.id || section.title;
+        if (sectionKey !== filters.sectionId) continue;
+
+        const sectionWeapons = resolveSectionWeapons(DATA, section);
+        const weapons = sectionWeapons
+          .filter((w) => matchesFilters(w, filters))
+          .map((w) => ({
+            weapon: w,
+            display: resolveDisplay(w, viewPve, viewPvp),
+          }))
+          .filter((item) => item.display.visible);
+
+        visible += weapons.length;
+
+        const collapsed =
+          weapons.length === 0 && sectionWeapons.length > 0
+            ? " collapsed"
+            : "";
+
+        parts.push(`
+          <section class="section${collapsed}" data-section="${escapeHtml(section.id || section.title)}">
+            <button type="button" class="section-header" aria-expanded="${collapsed ? "false" : "true"}">
+              <div class="section-title">
+                <h2>${escapeHtml(section.title)}</h2>
+                <span class="section-count">${weapons.length} / ${sectionWeapons.length} 把</span>
+              </div>
+              ${
+                String(section.note || "").trim()
+                  ? `<span class="section-note">${escapeHtml(String(section.note).trim())}</span>`
+                  : `<span class="section-note section-note-empty" aria-hidden="true"></span>`
+              }
+              <span class="section-chevron" aria-hidden="true"></span>
+            </button>
+            <div class="section-body">
+              ${renderWeaponTable(
+                weapons,
+                false,
+                sectionWeapons.length === 0
+                  ? "此途径暂无武器，请在编辑器中添加"
+                  : "当前筛选条件下无匹配武器"
+              )}
+            </div>
+          </section>
+        `);
+      }
     }
 
     countVisible.textContent = String(visible);
@@ -443,7 +534,7 @@
 
     root.innerHTML = `<div class="sections">${parts.join("")}</div>`;
 
-    root.querySelectorAll(".section-header").forEach((btn) => {
+    root.querySelectorAll(".section-header:not(.section-header-static)").forEach((btn) => {
       btn.addEventListener("click", () => {
         const section = btn.closest(".section");
         const collapsed = section.classList.toggle("collapsed");
@@ -455,7 +546,7 @@
   searchInput.addEventListener("input", render);
   typeFilter.addEventListener("change", render);
   ammoFilter.addEventListener("change", render);
-  ratingFilter.addEventListener("change", render);
+  sectionFilter.addEventListener("change", render);
   elementFilter.addEventListener("change", render);
   champFilter.addEventListener("change", render);
   viewShowPve.addEventListener("change", render);
@@ -464,7 +555,7 @@
     searchInput.value = "";
     typeFilter.value = "";
     ammoFilter.value = "";
-    ratingFilter.value = "";
+    sectionFilter.value = "";
     elementFilter.value = "";
     champFilter.value = "";
     viewShowPve.checked = true;

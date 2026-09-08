@@ -77,13 +77,17 @@
     return state.sections.find((s) => s.id === selectedSectionId) || null;
   }
 
+  function currentSectionWeapons() {
+    return resolveSectionWeapons(state, currentSection());
+  }
+
   function currentWeapon() {
-    const section = currentSection();
-    if (!section || !section.weapons?.length) return null;
-    if (selectedWeaponIndex < 0 || selectedWeaponIndex >= section.weapons.length) {
+    const weapons = currentSectionWeapons();
+    if (!weapons.length) return null;
+    if (selectedWeaponIndex < 0 || selectedWeaponIndex >= weapons.length) {
       return null;
     }
-    return section.weapons[selectedWeaponIndex];
+    return weapons[selectedWeaponIndex];
   }
 
   function ensureSelection() {
@@ -95,8 +99,7 @@
     if (!state.sections.some((s) => s.id === selectedSectionId)) {
       selectedSectionId = state.sections[0].id;
     }
-    const section = currentSection();
-    const len = section?.weapons?.length || 0;
+    const len = currentSectionWeapons().length;
     if (len === 0) {
       selectedWeaponIndex = -1;
     } else if (selectedWeaponIndex < 0 || selectedWeaponIndex >= len) {
@@ -106,14 +109,19 @@
 
   function readFormIntoWeapon() {
     const form = root.querySelector("#weapon-form");
-    const section = currentSection();
-    if (!form || !section || selectedWeaponIndex < 0) return;
+    const weapon = currentWeapon();
+    if (!form || !weapon) return;
 
     const get = (name) => form.querySelector(`[data-field="${name}"]`)?.value ?? "";
     const checked = (name) =>
       Boolean(form.querySelector(`[data-field="${name}"]`)?.checked);
 
-    section.weapons[selectedWeaponIndex] = {
+    const idx = state.weapons.findIndex((w) => w.id === weapon.id);
+    if (idx < 0) return;
+
+    state.weapons[idx] = {
+      ...state.weapons[idx],
+      id: weapon.id,
       name: get("name").trim(),
       weaponType: get("weaponType").trim(),
       ammoType: get("ammoType").trim(),
@@ -135,6 +143,28 @@
     };
   }
 
+  function syncSectionLinksFromForm() {
+    const form = root.querySelector("#weapon-form");
+    const weapon = currentWeapon();
+    if (!form || !weapon) return;
+    const boxes = [
+      ...form.querySelectorAll('input[data-section-link]'),
+    ];
+    if (!boxes.length) return;
+    const selected = boxes
+      .filter((el) => el.checked)
+      .map((el) => el.getAttribute("data-section-link"));
+    if (!selected.length) {
+      // keep at least current section
+      const fallback = selectedSectionId || state.sections[0]?.id;
+      boxes.forEach((el) => {
+        el.checked = el.getAttribute("data-section-link") === fallback;
+      });
+      selected.push(fallback);
+    }
+    setWeaponSectionMembership(state, weapon.id, selected);
+  }
+
   function syncAllFromDom() {
     state.seasonTitle = metaTitle.value.trim();
     state.seasonNote = metaNote.value.trim();
@@ -148,6 +178,7 @@
       section.note = noteInput.value.trim();
     }
     readFormIntoWeapon();
+    syncSectionLinksFromForm();
   }
 
   function weaponSummary(w) {
@@ -164,7 +195,7 @@
     return state.sections
       .map((section) => {
         const active = section.id === selectedSectionId ? " is-active" : "";
-        const count = section.weapons?.length || 0;
+        const count = (section.weaponIds || []).length;
         return `
           <div class="editor-side-item${active}" data-action="select-section" data-section-id="${escapeAttr(section.id)}">
             <div class="editor-side-item-main">
@@ -183,27 +214,62 @@
   }
 
   function weaponListHtml(section) {
-    const weapons = section?.weapons || [];
+    const weapons = resolveSectionWeapons(state, section);
     if (!weapons.length) {
-      return '<p class="editor-side-empty">暂无武器，点击上方「添加」</p>';
+      return '<p class="editor-side-empty">暂无武器，点击上方「添加」或从已有武器加入</p>';
     }
     return weapons
       .map((w, i) => {
         const active = i === selectedWeaponIndex ? " is-active" : "";
         const name = w.name || "未命名武器";
+        const paths = weaponSectionIds(state, w.id).length;
+        const pathHint = paths > 1 ? ` · ${paths} 途径` : "";
         return `
           <div class="editor-side-item${active}" data-action="select-weapon" data-weapon-index="${i}">
             <div class="editor-side-item-main">
               <span class="editor-side-item-title">${escapeHtml(name)}</span>
-              <span class="editor-side-item-meta">${escapeHtml(weaponSummary(w))}</span>
+              <span class="editor-side-item-meta">${escapeHtml(weaponSummary(w))}${escapeHtml(pathHint)}</span>
             </div>
             <div class="editor-side-item-tools">
               <button type="button" class="icon-btn" data-action="move-weapon-up" data-weapon-index="${i}" title="上移">↑</button>
               <button type="button" class="icon-btn" data-action="move-weapon-down" data-weapon-index="${i}" title="下移">↓</button>
-              <button type="button" class="icon-btn danger" data-action="delete-weapon" data-weapon-index="${i}" title="删除">×</button>
+              <button type="button" class="icon-btn danger" data-action="delete-weapon" data-weapon-index="${i}" title="从当前途径移除">×</button>
             </div>
           </div>
         `;
+      })
+      .join("");
+  }
+
+  function linkExistingHtml(section) {
+    const inSection = new Set(section?.weaponIds || []);
+    const candidates = (state.weapons || []).filter((w) => w.id && !inSection.has(w.id));
+    if (!candidates.length) {
+      return "";
+    }
+    const options = candidates
+      .map((w) => {
+        const label = w.name || "未命名武器";
+        return `<option value="${escapeAttr(w.id)}">${escapeHtml(label)}</option>`;
+      })
+      .join("");
+    return `
+      <div class="editor-link-existing">
+        <select id="link-existing-weapon" aria-label="从已有武器加入">
+          <option value="">从已有武器加入…</option>
+          ${options}
+        </select>
+        <button type="button" class="btn-secondary sm" data-action="link-existing">加入</button>
+      </div>
+    `;
+  }
+
+  function sectionLinksHtml(weapon) {
+    const owned = new Set(weaponSectionIds(state, weapon.id));
+    return state.sections
+      .map((section) => {
+        const checked = owned.has(section.id) ? " checked" : "";
+        return `<label><input type="checkbox" data-section-link="${escapeAttr(section.id)}"${checked} /> ${escapeHtml(section.title)}</label>`;
       })
       .join("");
   }
@@ -270,6 +336,14 @@
             <label for="f-note">备注</label>
             <textarea id="f-note" data-field="note" placeholder="可选备注">${escapeHtml(w.note || "")}</textarea>
           </div>
+        </div>
+
+        <div class="editor-form-section">
+          <h4>获取途径（可多选）</h4>
+          <div class="editor-check-row editor-section-links">
+            ${sectionLinksHtml(w)}
+          </div>
+          <p class="editor-hint">同一把枪可出现在多个途径；查看页会在对应途径下都显示。</p>
         </div>
 
         <div class="editor-form-section">
@@ -356,6 +430,7 @@
           </div>
           <input id="section-rename" class="editor-section-rename" type="text" value="${escapeAttr(section?.title || "")}" aria-label="获取途径名称" placeholder="获取途径名称" />
           <input id="section-note" class="editor-section-note" type="text" value="${escapeAttr(section?.note || "")}" aria-label="获取途径备注" placeholder="途径备注（显示在查看页标题旁）" />
+          ${linkExistingHtml(section)}
           <div class="editor-side-list" id="weapon-list">${weaponListHtml(section)}</div>
         </aside>
         <section class="editor-main">${formHtml(weapon)}</section>
@@ -461,6 +536,47 @@
   root.addEventListener("change", (e) => {
     const target = e.target;
     if (!(target instanceof HTMLElement)) return;
+
+    if (target.matches("input[data-section-link]")) {
+      const weapon = currentWeapon();
+      if (!weapon) return;
+      const form = root.querySelector("#weapon-form");
+      const boxes = [
+        ...form.querySelectorAll("input[data-section-link]"),
+      ];
+      let selected = boxes
+        .filter((el) => el.checked)
+        .map((el) => el.getAttribute("data-section-link"));
+      if (!selected.length) {
+        target.checked = true;
+        selected = [target.getAttribute("data-section-link")];
+        showStatus("至少保留一个获取途径。", "info");
+      }
+      setWeaponSectionMembership(state, weapon.id, selected);
+      // if removed from current section, jump to first remaining section that has it
+      if (!selected.includes(selectedSectionId)) {
+        selectedSectionId = selected[0];
+        const list = resolveSectionWeapons(
+          state,
+          state.sections.find((s) => s.id === selectedSectionId)
+        );
+        selectedWeaponIndex = Math.max(
+          0,
+          list.findIndex((w) => w.id === weapon.id)
+        );
+      } else {
+        const list = currentSectionWeapons();
+        selectedWeaponIndex = Math.max(
+          0,
+          list.findIndex((w) => w.id === weapon.id)
+        );
+      }
+      scheduleSave();
+      root.dataset.keepWeaponScroll = "1";
+      render();
+      return;
+    }
+
     if (!target.matches("#weapon-form [data-field]")) return;
 
     if (
@@ -513,20 +629,42 @@
     if (action === "add-weapon") {
       const section = currentSection();
       if (!section) return;
-      section.weapons.push(emptyWeapon());
-      afterMutation(section.weapons.length - 1);
+      const weapon = emptyWeapon();
+      weapon.id = makeWeaponId(weapon.name || "weapon");
+      state.weapons.push(weapon);
+      if (!Array.isArray(section.weaponIds)) section.weaponIds = [];
+      section.weaponIds.push(weapon.id);
+      afterMutation(section.weaponIds.length - 1);
       root.querySelector("#f-name")?.focus();
+      return;
+    }
+
+    if (action === "link-existing") {
+      const section = currentSection();
+      const select = root.querySelector("#link-existing-weapon");
+      const weaponId = select?.value;
+      if (!section || !weaponId) return;
+      addWeaponIdToSection(state, weaponId, section.id);
+      const idx = (section.weaponIds || []).indexOf(weaponId);
+      afterMutation(idx < 0 ? section.weaponIds.length - 1 : idx);
       return;
     }
 
     if (action === "delete-weapon") {
       const section = currentSection();
       const idx = Number(actionable.dataset.weaponIndex);
-      if (!section || Number.isNaN(idx)) return;
-      const name = section.weapons[idx]?.name || "未命名武器";
-      if (!confirm(`确定删除武器「${name}」？`)) return;
-      section.weapons.splice(idx, 1);
-      afterMutation(Math.min(idx, section.weapons.length - 1));
+      const weapons = resolveSectionWeapons(state, section);
+      if (!section || Number.isNaN(idx) || !weapons[idx]) return;
+      const weapon = weapons[idx];
+      const name = weapon.name || "未命名武器";
+      const otherCount = weaponSectionIds(state, weapon.id).length - 1;
+      const msg =
+        otherCount > 0
+          ? `从当前途径移除「${name}」？它仍会保留在另外 ${otherCount} 个途径中。`
+          : `从当前途径移除「${name}」？它不在其他途径，将从武器库删除。`;
+      if (!confirm(msg)) return;
+      removeWeaponFromSection(state, weapon.id, section.id);
+      afterMutation(Math.min(idx, (section.weaponIds || []).length - 1));
       return;
     }
 
@@ -534,7 +672,7 @@
       const section = currentSection();
       const idx = Number(actionable.dataset.weaponIndex);
       if (!section || idx <= 0) return;
-      const arr = section.weapons;
+      const arr = section.weaponIds;
       [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]];
       afterMutation(idx - 1);
       return;
@@ -543,8 +681,9 @@
     if (action === "move-weapon-down") {
       const section = currentSection();
       const idx = Number(actionable.dataset.weaponIndex);
-      if (!section || idx < 0 || idx >= section.weapons.length - 1) return;
-      const arr = section.weapons;
+      if (!section || idx < 0 || idx >= (section.weaponIds || []).length - 1)
+        return;
+      const arr = section.weaponIds;
       [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]];
       afterMutation(idx + 1);
       return;
@@ -573,14 +712,20 @@
       const sIndex = findSectionIndex(id);
       if (sIndex < 0) return;
       const title = state.sections[sIndex].title;
-      const count = state.sections[sIndex].weapons?.length || 0;
+      const count = state.sections[sIndex].weaponIds?.length || 0;
       const ok = confirm(
         count > 0
-          ? `确定删除「${title}」及其 ${count} 把武器？`
+          ? `确定删除「${title}」？其中 ${count} 把武器会从该途径移除（若仅属于此途径则从武器库删除）。`
           : `确定删除空分块「${title}」？`
       );
       if (!ok) return;
+      const ids = [...(state.sections[sIndex].weaponIds || [])];
       state.sections.splice(sIndex, 1);
+      for (const weaponId of ids) {
+        if (!weaponSectionIds(state, weaponId).length) {
+          state.weapons = state.weapons.filter((w) => w.id !== weaponId);
+        }
+      }
       selectedSectionId = state.sections[0]?.id || null;
       selectedWeaponIndex = 0;
       afterMutation(0);
@@ -598,7 +743,7 @@
       id: makeSectionId(title),
       title: title.trim() || "新获取途径",
       note: "",
-      weapons: [],
+      weaponIds: [],
     };
     state.sections.push(section);
     selectedSectionId = section.id;

@@ -34,7 +34,7 @@ ${css}
 </head>
 <body>
   <div class="bg-grid" aria-hidden="true"></div>
-  <div class="page">
+  <div class="page page-viewer">
     <header class="hero">
       <div class="hero-top">
         <div>
@@ -81,18 +81,8 @@ ${css}
         </select>
       </div>
       <div class="field">
-        <label for="filter-rating">评级</label>
-        <select id="filter-rating">
-          <option value="">全部</option>
-          <option value="S">S</option>
-          <option value="A+">A+</option>
-          <option value="A">A</option>
-          <option value="B+">B+</option>
-          <option value="B">B</option>
-          <option value="C+">C+</option>
-          <option value="C">C</option>
-          <option value="D">D</option>
-        </select>
+        <label for="filter-section">获取途径</label>
+        <select id="filter-section"><option value="">全部</option></select>
       </div>
       <div class="field">
         <label for="filter-element">属性</label>

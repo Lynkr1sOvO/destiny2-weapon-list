@@ -77,6 +77,7 @@ function downloadDataJs(data) {
 
 function emptyWeapon() {
   return {
+    id: "",
     name: "",
     weaponType: "",
     ammoType: "",
@@ -205,6 +206,7 @@ function formatFrameRpm(weapon) {
 
 function migrateLegacyWeapon(weapon) {
   const next = { ...emptyWeapon(), ...weapon };
+  if (weapon && weapon.id) next.id = String(weapon.id);
 
   next.element = normalizeElementName(next.element);
   next.antiChamp = normalizeChampName(next.antiChamp);
@@ -242,6 +244,86 @@ function migrateLegacyWeapon(weapon) {
   return next;
 }
 
+function slugPart(value, maxLen) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\u4e00-\u9fff-]/g, "")
+    .slice(0, maxLen || 20);
+}
+
+function makeStableWeaponId(sectionId, index, name) {
+  const slug = slugPart(name, 20) || "item";
+  return `w-${sectionId || "sec"}-${index}-${slug}`;
+}
+
+function makeWeaponId(name) {
+  const slug = slugPart(name, 16) || "item";
+  return `w-${slug}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
+function getWeaponMap(data) {
+  const map = new Map();
+  for (const weapon of data.weapons || []) {
+    if (weapon?.id) map.set(weapon.id, weapon);
+  }
+  return map;
+}
+
+function resolveSectionWeapons(data, section) {
+  const map = getWeaponMap(data);
+  return (section?.weaponIds || [])
+    .map((id) => map.get(id))
+    .filter(Boolean);
+}
+
+function weaponSectionIds(data, weaponId) {
+  if (!weaponId) return [];
+  return (data.sections || [])
+    .filter((section) => (section.weaponIds || []).includes(weaponId))
+    .map((section) => section.id);
+}
+
+function purgeOrphanWeapons(data) {
+  const used = new Set();
+  for (const section of data.sections || []) {
+    for (const id of section.weaponIds || []) used.add(id);
+  }
+  data.weapons = (data.weapons || []).filter((w) => w?.id && used.has(w.id));
+}
+
+function removeWeaponFromSection(data, weaponId, sectionId) {
+  const section = (data.sections || []).find((s) => s.id === sectionId);
+  if (!section) return;
+  section.weaponIds = (section.weaponIds || []).filter((id) => id !== weaponId);
+  if (!weaponSectionIds(data, weaponId).length) {
+    data.weapons = (data.weapons || []).filter((w) => w.id !== weaponId);
+  }
+}
+
+function addWeaponIdToSection(data, weaponId, sectionId) {
+  const section = (data.sections || []).find((s) => s.id === sectionId);
+  if (!section || !weaponId) return;
+  if (!Array.isArray(section.weaponIds)) section.weaponIds = [];
+  if (!section.weaponIds.includes(weaponId)) section.weaponIds.push(weaponId);
+}
+
+/** 同步一把武器所属途径（至少保留一个） */
+function setWeaponSectionMembership(data, weaponId, sectionIds) {
+  const wanted = [...new Set((sectionIds || []).filter(Boolean))];
+  if (!wanted.length) return false;
+  for (const section of data.sections || []) {
+    const has = (section.weaponIds || []).includes(weaponId);
+    const should = wanted.includes(section.id);
+    if (should && !has) addWeaponIdToSection(data, weaponId, section.id);
+    if (!should && has) {
+      section.weaponIds = section.weaponIds.filter((id) => id !== weaponId);
+    }
+  }
+  return true;
+}
+
 function normalizeWeaponData(data) {
   const next = cloneData(data);
   delete next.showPvePerk;
@@ -249,12 +331,47 @@ function normalizeWeaponData(data) {
   if (typeof next.updatedAt !== "string") {
     next.updatedAt = next.updatedAt == null ? "" : String(next.updatedAt);
   }
-  for (const section of next.sections || []) {
+  if (!Array.isArray(next.sections)) next.sections = [];
+  if (!Array.isArray(next.weapons)) next.weapons = [];
+
+  // 旧结构：sections[].weapons → 顶层 weapons + weaponIds
+  for (const section of next.sections) {
     if (typeof section.note !== "string") {
       section.note = section.note == null ? "" : String(section.note);
     }
-    section.weapons = (section.weapons || []).map(migrateLegacyWeapon);
+    if (!Array.isArray(section.weaponIds)) section.weaponIds = [];
+
+    const nested = Array.isArray(section.weapons) ? section.weapons : [];
+    if (nested.length) {
+      nested.forEach((raw, index) => {
+        const migrated = migrateLegacyWeapon(raw);
+        const id =
+          migrated.id ||
+          makeStableWeaponId(section.id, index, migrated.name);
+        migrated.id = id;
+        if (!next.weapons.some((w) => w.id === id)) {
+          next.weapons.push(migrated);
+        }
+        if (!section.weaponIds.includes(id)) section.weaponIds.push(id);
+      });
+    }
+    delete section.weapons;
   }
+
+  next.weapons = next.weapons.map((raw) => {
+    const migrated = migrateLegacyWeapon(raw);
+    if (!migrated.id) migrated.id = makeWeaponId(migrated.name);
+    return migrated;
+  });
+
+  const validIds = new Set(next.weapons.map((w) => w.id));
+  for (const section of next.sections) {
+    section.weaponIds = (section.weaponIds || []).filter((id) =>
+      validIds.has(id)
+    );
+  }
+
+  purgeOrphanWeapons(next);
   return next;
 }
 
