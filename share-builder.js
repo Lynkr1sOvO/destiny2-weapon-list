@@ -121,6 +121,10 @@ ${css}
     <main id="app"></main>
   </div>
 
+  <div id="table-hscroll" class="table-hscroll" hidden aria-hidden="true">
+    <div class="table-hscroll-spacer"></div>
+  </div>
+
   <script>${dataJs}</script>
   <script>${storageJs}</script>
   <script>${appJs}</script>

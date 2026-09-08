@@ -56,12 +56,6 @@ body {
   background-attachment: fixed;
 }
 
-html:has(.page-viewer),
-html:has(.page-viewer) body {
-  height: 100%;
-  overflow: hidden;
-}
-
 .bg-grid {
   pointer-events: none;
   position: fixed;
@@ -83,67 +77,8 @@ html:has(.page-viewer) body {
   padding: 2rem 0 3rem;
 }
 
-/* 查看页：表格区占满剩余视口，横/纵滚动条都在该区域边缘（横向条贴窗口下沿） */
-.page-viewer {
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  height: 100vh;
-  height: 100dvh;
-  padding-top: 1.25rem;
-  padding-bottom: 0;
-  overflow: hidden;
-}
-
-.page-viewer .hero,
-.page-viewer .toolbar,
-.page-viewer .status-bar,
-.page-viewer #draft-banner {
-  flex-shrink: 0;
-}
-
 .page-viewer .footer-hint {
   display: none;
-}
-
-.page-viewer #app {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 0;
-}
-
-.page-viewer .sections {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.page-viewer .section {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.page-viewer .section-header,
-.page-viewer .section-header-static {
-  flex-shrink: 0;
-}
-
-.page-viewer .section-body {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.page-viewer .no-results {
-  flex: 1;
 }
 
 /* —— Header —— */
@@ -379,14 +314,41 @@ html:has(.page-viewer) body {
 }
 
 .table-wrap {
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: visible;
+  /* 原生横向条隐藏，改用窗口底部固定条 */
+  scrollbar-width: none;
 }
 
-.page-viewer .table-wrap {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
+.table-wrap::-webkit-scrollbar {
+  height: 0;
+  display: none;
+}
+
+/* 固定在窗口底端的横向滚动条（与 .table-wrap 同步） */
+.table-hscroll {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 80;
+  height: 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: color-mix(in srgb, var(--bg-deep) 88%, #000);
+  border-top: 1px solid var(--line);
+}
+
+.table-hscroll[hidden] {
+  display: none !important;
+}
+
+.table-hscroll-spacer {
+  height: 1px;
+  pointer-events: none;
+}
+
+body.has-table-hscroll {
+  padding-bottom: 14px;
 }
 
 table,
@@ -408,8 +370,8 @@ table,
 .weapon-table col.col-champ { width: 4.5%; }
 .weapon-table col.col-mode { width: 3%; }
 .weapon-table col.col-perk { width: 5.5%; }
-.weapon-table col.col-sources { width: 14%; }
-.weapon-table col.col-note { width: 11%; }
+.weapon-table col.col-sources { width: 11.9%; }
+.weapon-table col.col-note { width: 13.1%; }
 
 .weapon-table.weapon-table-with-sources {
   min-width: 1280px;
@@ -541,7 +503,7 @@ tbody tr.weapon-row:hover {
   white-space: normal !important;
   overflow-wrap: anywhere;
   word-break: break-word;
-  text-align: left;
+  text-align: center;
   line-height: 1.3;
   height: auto !important;
   max-height: none !important;
@@ -558,6 +520,7 @@ tbody tr.weapon-row:hover {
   white-space: normal;
   overflow-wrap: anywhere;
   word-break: break-word;
+  text-align: center;
 }
 
 .weapon-table td.frame-cell .frame-line,

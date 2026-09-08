@@ -541,6 +541,62 @@
         btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
       });
     });
+
+    bindTableHScroll();
+  }
+
+  /** 窗口底部固定横向滚动条，与表格区域横向滚动同步 */
+  let hScrollBound = false;
+  let hScrollSyncing = false;
+
+  function bindTableHScroll() {
+    const bar = document.getElementById("table-hscroll");
+    const spacer = bar?.querySelector(".table-hscroll-spacer");
+    const wrap = root.querySelector(".table-wrap");
+    const table = wrap?.querySelector("table");
+    if (!bar || !spacer) return;
+
+    function layout() {
+      if (!wrap || !table || !wrap.isConnected) {
+        bar.hidden = true;
+        bar.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("has-table-hscroll");
+        return;
+      }
+      const rect = wrap.getBoundingClientRect();
+      const need = table.scrollWidth > wrap.clientWidth + 1;
+      bar.hidden = !need;
+      bar.setAttribute("aria-hidden", need ? "false" : "true");
+      document.body.classList.toggle("has-table-hscroll", need);
+      if (!need) return;
+
+      bar.style.left = `${Math.max(0, rect.left)}px`;
+      bar.style.width = `${Math.max(0, rect.width)}px`;
+      spacer.style.width = `${table.scrollWidth}px`;
+      if (!hScrollSyncing) bar.scrollLeft = wrap.scrollLeft;
+    }
+
+    if (!hScrollBound) {
+      hScrollBound = true;
+      bar.addEventListener("scroll", () => {
+        const currentWrap = root.querySelector(".table-wrap");
+        if (!currentWrap || hScrollSyncing) return;
+        hScrollSyncing = true;
+        currentWrap.scrollLeft = bar.scrollLeft;
+        hScrollSyncing = false;
+      });
+      window.addEventListener("scroll", layout, { passive: true });
+      window.addEventListener("resize", layout);
+    }
+
+    wrap.addEventListener("scroll", () => {
+      if (hScrollSyncing || bar.hidden) return;
+      hScrollSyncing = true;
+      bar.scrollLeft = wrap.scrollLeft;
+      hScrollSyncing = false;
+    });
+
+    requestAnimationFrame(layout);
   }
 
   searchInput.addEventListener("input", render);
