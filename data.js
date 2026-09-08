@@ -722,7 +722,7 @@ const WEAPON_DATA = {
       "weaponIds": []
     }
   ],
-  "updatedAt": "2026-09-08T16:02:54.275Z",
+  "updatedAt": "2026-09-08T16:17:37.953Z",
   "weapons": [
     {
       "id": "w-seasonal-0-塔霍马01",
@@ -1077,7 +1077,7 @@ const WEAPON_DATA = {
       "perk4Pve": "失衡弹药/狂乱",
       "perk1Pvp": "加长枪管/锻造膛线",
       "perk2Pvp": "大口径弹药/弹跳型弹药",
-      "perk3Pvp": "滑行健射/快速命中1",
+      "perk3Pvp": "滑行健射/快速命中",
       "perk4Pvp": "失衡弹药/狂暴",
       "note": ""
     },

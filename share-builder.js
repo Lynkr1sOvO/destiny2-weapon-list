@@ -38,7 +38,7 @@ ${css}
     <header class="hero">
       <div class="hero-top">
         <div>
-          <p class="hero-kicker">Destiny 2 · 只读分享</p>
+          <p class="hero-kicker">Destiny 2</p>
           <h1 id="season-title">本赛季可获取武器清单</h1>
           <p class="hero-note" id="season-note"></p>
         </div>
