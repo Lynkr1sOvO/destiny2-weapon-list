@@ -7,20 +7,59 @@ function cloneData(data) {
 
 function loadWeaponData() {
   if (typeof D2_SHARE_READONLY !== "undefined" && D2_SHARE_READONLY) {
-    return { data: normalizeWeaponData(WEAPON_DATA), fromDraft: false };
+    return {
+      data: backfillEmptyAntiChamp(normalizeWeaponData(WEAPON_DATA)),
+      fromDraft: false,
+    };
   }
   try {
     const raw = localStorage.getItem(D2_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.sections)) {
-        return { data: normalizeWeaponData(parsed), fromDraft: true };
+        return {
+          data: backfillEmptyAntiChamp(normalizeWeaponData(parsed)),
+          fromDraft: true,
+        };
       }
     }
   } catch (_) {
     /* ignore corrupt draft */
   }
-  return { data: normalizeWeaponData(WEAPON_DATA), fromDraft: false };
+  return {
+    data: backfillEmptyAntiChamp(normalizeWeaponData(WEAPON_DATA)),
+    fromDraft: false,
+  };
+}
+
+/** 草稿/导出里空的反勇士：优先用 data.js 同 id，其次按 bungieHash 查武器库 */
+function backfillEmptyAntiChamp(data) {
+  if (!data || !Array.isArray(data.weapons)) return data;
+  const fileList =
+    typeof WEAPON_DATA !== "undefined" && Array.isArray(WEAPON_DATA.weapons)
+      ? WEAPON_DATA.weapons
+      : [];
+  const byId = new Map(fileList.map((w) => [w.id, w]));
+  const byHash = new Map(getWeaponsDbList().map((w) => [Number(w.hash), w]));
+
+  for (const weapon of data.weapons) {
+    if (weapon.antiChamp && String(weapon.antiChamp).trim()) continue;
+
+    const fromFile = byId.get(weapon.id);
+    if (fromFile?.antiChamp && String(fromFile.antiChamp).trim()) {
+      weapon.antiChamp = fromFile.antiChamp;
+      continue;
+    }
+
+    const hash = Number(weapon.bungieHash);
+    if (Number.isFinite(hash) && hash > 0) {
+      const entry = byHash.get(hash);
+      if (entry?.antiChamp && String(entry.antiChamp).trim()) {
+        weapon.antiChamp = entry.antiChamp;
+      }
+    }
+  }
+  return data;
 }
 
 function saveWeaponDraft(data) {
