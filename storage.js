@@ -473,6 +473,10 @@ function resolveWeaponItemHash(weapon, dbList) {
     const n = Number(weapon.bungieHash);
     if (Number.isFinite(n) && n > 0) return n;
   }
+  if (weapon.hash != null && weapon.hash !== "") {
+    const n = Number(weapon.hash);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
   const list = dbList || getWeaponsDbList();
   if (!list.length) return null;
   const name = String(weapon.name || "").trim();

@@ -53,12 +53,36 @@ function loadBuilders() {
 
 const builders = loadBuilders();
 const data = loadWeaponDataFromFile();
+let weaponsDbJs = "";
+let dbViewJs = "";
+try {
+  weaponsDbJs = read("weapons-db.js");
+} catch {
+  console.warn("未找到 weapons-db.js，分享页武器库搜索将不可用");
+}
+try {
+  dbViewJs = read("db-view.js");
+} catch {
+  console.warn("未找到 db-view.js");
+}
+
 const html = builders.buildShareHtml(data, {
   css: read("styles.css"),
   storageJs: read("storage.js"),
   appJs: read("app.js"),
+  dbViewJs,
+  weaponsDbJs,
 });
 
 const out = path.join(__dirname, "share.html");
 fs.writeFileSync(out, html, "utf8");
 console.log("已写入", out);
+
+const docsOut = path.join(__dirname, "docs", "index.html");
+try {
+  fs.mkdirSync(path.dirname(docsOut), { recursive: true });
+  fs.writeFileSync(docsOut, html, "utf8");
+  console.log("已写入", docsOut);
+} catch (err) {
+  console.warn("未能写入 docs/index.html：", err.message);
+}

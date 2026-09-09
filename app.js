@@ -12,17 +12,26 @@
   const countTotal = document.getElementById("count-total");
   const countVisible = document.getElementById("count-visible");
   const countSections = document.getElementById("count-sections");
+  const countTotalLabel = document.getElementById("count-total-label");
+  const countVisibleLabel = document.getElementById("count-visible-label");
+  const countSectionsLabel = document.getElementById("count-sections-label");
   const seasonTitle = document.getElementById("season-title");
   const seasonNote = document.getElementById("season-note");
   const lastUpdated = document.getElementById("last-updated");
   const draftBanner = document.getElementById("draft-banner");
+  const viewList = document.getElementById("view-list");
+  const viewDb = document.getElementById("view-db");
+  const viewBtnList = document.getElementById("view-btn-list");
+  const viewBtnDb = document.getElementById("view-btn-db");
 
   const loaded = loadWeaponData();
   const DATA = loaded.data;
 
   if (!DATA || !Array.isArray(DATA.sections)) {
-    root.innerHTML =
-      '<p class="no-results">未找到数据。请确认 <code>data.js</code> 已正确加载。</p>';
+    if (root) {
+      root.innerHTML =
+        '<p class="no-results">未找到数据。请确认 <code>data.js</code> 已正确加载。</p>';
+    }
     return;
   }
 
@@ -50,8 +59,16 @@
         (sum, s) => sum + (s.weaponIds?.length || s.weapons?.length || 0),
         0
       );
-  countTotal.textContent = String(totalWeapons);
-  countSections.textContent = String(DATA.sections.length);
+
+  function applyListStatLabels() {
+    if (countTotalLabel) countTotalLabel.textContent = "武器总数";
+    if (countVisibleLabel) countVisibleLabel.textContent = "当前可见";
+    if (countSectionsLabel) countSectionsLabel.textContent = "获取途径";
+    countTotal.textContent = String(totalWeapons);
+    countSections.textContent = String(DATA.sections.length);
+  }
+
+  applyListStatLabels();
 
   // 填充武器类型选项
   WEAPON_TYPES.forEach((type) => {
@@ -68,6 +85,64 @@
     opt.textContent = section.title || section.id || "未命名途径";
     sectionFilter.appendChild(opt);
   });
+
+  const dbController =
+    typeof createWeaponsDbController === "function"
+      ? createWeaponsDbController({
+          searchInput: document.getElementById("db-search"),
+          resultsEl: document.getElementById("db-results"),
+          hintEl: document.getElementById("db-hint"),
+          countTotal,
+          countVisible,
+          countSections,
+          countTotalLabel,
+          countVisibleLabel,
+          countSectionsLabel,
+          onAfterRender: () => bindTableHScroll(),
+        })
+      : null;
+
+  let currentView = "list";
+
+  function readViewFromHash() {
+    const hash = String(location.hash || "")
+      .replace(/^#/, "")
+      .toLowerCase();
+    return hash === "db" ? "db" : "list";
+  }
+
+  function setView(view, { updateHash = true } = {}) {
+    currentView = view === "db" ? "db" : "list";
+    if (viewList) viewList.hidden = currentView !== "list";
+    if (viewDb) viewDb.hidden = currentView !== "db";
+    if (viewBtnList) {
+      viewBtnList.classList.toggle("is-active", currentView === "list");
+      viewBtnList.setAttribute(
+        "aria-selected",
+        currentView === "list" ? "true" : "false"
+      );
+    }
+    if (viewBtnDb) {
+      viewBtnDb.classList.toggle("is-active", currentView === "db");
+      viewBtnDb.setAttribute(
+        "aria-selected",
+        currentView === "db" ? "true" : "false"
+      );
+    }
+    if (updateHash) {
+      const next = currentView === "db" ? "#db" : "#list";
+      if (location.hash !== next) {
+        history.replaceState(null, "", next);
+      }
+    }
+    if (currentView === "db") {
+      if (dbController) dbController.render();
+      else applyListStatLabels();
+    } else {
+      applyListStatLabels();
+      render();
+    }
+  }
 
   function ratingClass(rating) {
     return ratingTierClass(rating);
@@ -465,6 +540,8 @@
   }
 
   function render() {
+    if (currentView !== "list") return;
+
     const viewPve = viewShowPve.checked;
     const viewPvp = viewShowPvp.checked;
 
@@ -588,22 +665,31 @@
   let hScrollBound = false;
   let hScrollSyncing = false;
 
+  function activeTableWrap() {
+    if (currentView === "db") {
+      return document.querySelector("#db-results .table-wrap");
+    }
+    return root?.querySelector(".table-wrap") || null;
+  }
+
   function bindTableHScroll() {
     const bar = document.getElementById("table-hscroll");
     const spacer = bar?.querySelector(".table-hscroll-spacer");
-    const wrap = root.querySelector(".table-wrap");
+    const wrap = activeTableWrap();
     const table = wrap?.querySelector("table");
     if (!bar || !spacer) return;
 
     function layout() {
-      if (!wrap || !table || !wrap.isConnected) {
+      const currentWrap = activeTableWrap();
+      const currentTable = currentWrap?.querySelector("table");
+      if (!currentWrap || !currentTable || !currentWrap.isConnected) {
         bar.hidden = true;
         bar.setAttribute("aria-hidden", "true");
         document.body.classList.remove("has-table-hscroll");
         return;
       }
-      const rect = wrap.getBoundingClientRect();
-      const need = table.scrollWidth > wrap.clientWidth + 1;
+      const rect = currentWrap.getBoundingClientRect();
+      const need = currentTable.scrollWidth > currentWrap.clientWidth + 1;
       bar.hidden = !need;
       bar.setAttribute("aria-hidden", need ? "false" : "true");
       document.body.classList.toggle("has-table-hscroll", need);
@@ -611,14 +697,14 @@
 
       bar.style.left = `${Math.max(0, rect.left)}px`;
       bar.style.width = `${Math.max(0, rect.width)}px`;
-      spacer.style.width = `${table.scrollWidth}px`;
-      if (!hScrollSyncing) bar.scrollLeft = wrap.scrollLeft;
+      spacer.style.width = `${currentTable.scrollWidth}px`;
+      if (!hScrollSyncing) bar.scrollLeft = currentWrap.scrollLeft;
     }
 
     if (!hScrollBound) {
       hScrollBound = true;
       bar.addEventListener("scroll", () => {
-        const currentWrap = root.querySelector(".table-wrap");
+        const currentWrap = activeTableWrap();
         if (!currentWrap || hScrollSyncing) return;
         hScrollSyncing = true;
         currentWrap.scrollLeft = bar.scrollLeft;
@@ -628,12 +714,14 @@
       window.addEventListener("resize", layout);
     }
 
-    wrap.addEventListener("scroll", () => {
-      if (hScrollSyncing || bar.hidden) return;
-      hScrollSyncing = true;
-      bar.scrollLeft = wrap.scrollLeft;
-      hScrollSyncing = false;
-    });
+    if (wrap) {
+      wrap.addEventListener("scroll", () => {
+        if (hScrollSyncing || bar.hidden) return;
+        hScrollSyncing = true;
+        bar.scrollLeft = wrap.scrollLeft;
+        hScrollSyncing = false;
+      });
+    }
 
     requestAnimationFrame(layout);
   }
@@ -658,5 +746,15 @@
     render();
   });
 
-  render();
+  if (viewBtnList) {
+    viewBtnList.addEventListener("click", () => setView("list"));
+  }
+  if (viewBtnDb) {
+    viewBtnDb.addEventListener("click", () => setView("db"));
+  }
+  window.addEventListener("hashchange", () => {
+    setView(readViewFromHash(), { updateHash: false });
+  });
+
+  setView(readViewFromHash(), { updateHash: true });
 })();

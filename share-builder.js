@@ -1,7 +1,7 @@
 /**
  * 组装只读单文件分享页（无编辑器、忽略 localStorage 草稿）
  * @param {object} data WEAPON_DATA 快照
- * @param {{ css: string, storageJs: string, appJs: string }} assets
+ * @param {{ css: string, storageJs: string, appJs: string, dbViewJs?: string, weaponsDbJs?: string }} assets
  */
 function buildShareHtml(data, assets) {
   // Do not retouch updatedAt here — every rebuild would dirty share.html/docs
@@ -15,6 +15,13 @@ function buildShareHtml(data, assets) {
   const css = String(assets.css || "");
   const storageJs = sanitizeInlineScript(assets.storageJs || "");
   const appJs = sanitizeInlineScript(assets.appJs || "");
+  const dbViewJs = sanitizeInlineScript(assets.dbViewJs || "");
+  let weaponsDbJs = sanitizeInlineScript(assets.weaponsDbJs || "");
+  if (!weaponsDbJs && typeof WEAPONS_DB !== "undefined") {
+    weaponsDbJs = sanitizeInlineScript(
+      `const WEAPONS_DB = ${JSON.stringify(WEAPONS_DB)};`
+    );
+  }
   const dataJs = sanitizeInlineScript(
     `const D2_SHARE_READONLY = true;\nconst WEAPON_DATA = ${payload};`
   );
@@ -47,79 +54,109 @@ ${css}
           <p class="last-updated" id="last-updated" hidden></p>
         </div>
       </div>
+
+      <div class="view-mode-switch" role="tablist" aria-label="查看模式">
+        <button type="button" class="view-mode-btn is-active" data-view="list" role="tab" aria-selected="true" id="view-btn-list">赛季清单</button>
+        <button type="button" class="view-mode-btn" data-view="db" role="tab" aria-selected="false" id="view-btn-db">完整武器库</button>
+      </div>
+
       <div class="stats">
         <div class="stat">
           <span class="stat-value" id="count-total">0</span>
-          <span class="stat-label">武器总数</span>
+          <span class="stat-label" id="count-total-label">武器总数</span>
         </div>
         <div class="stat">
           <span class="stat-value" id="count-visible">0</span>
-          <span class="stat-label">当前可见</span>
+          <span class="stat-label" id="count-visible-label">当前可见</span>
         </div>
         <div class="stat">
           <span class="stat-value" id="count-sections">0</span>
-          <span class="stat-label">获取途径</span>
+          <span class="stat-label" id="count-sections-label">获取途径</span>
         </div>
       </div>
     </header>
 
-    <div class="toolbar">
-      <div class="field">
-        <label for="search">搜索</label>
-        <input id="search" type="search" placeholder="武器名、Perk、备注…" autocomplete="off" />
-      </div>
-      <div class="field">
-        <label for="filter-type">武器类型</label>
-        <select id="filter-type"><option value="">全部</option></select>
-      </div>
-      <div class="field">
-        <label for="filter-ammo">弹药类型</label>
-        <select id="filter-ammo">
-          <option value="">全部</option>
-          <option value="主要">主要</option>
-          <option value="特殊">特殊</option>
-          <option value="威能">威能</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="filter-section">获取途径</label>
-        <select id="filter-section"><option value="">全部</option></select>
-      </div>
-      <div class="field">
-        <label for="filter-element">属性</label>
-        <select id="filter-element">
-          <option value="">全部</option>
-          <option value="动能">动能</option>
-          <option value="烈日">烈日</option>
-          <option value="电弧">电弧</option>
-          <option value="虚空">虚空</option>
-          <option value="冰影">冰影</option>
-          <option value="缚丝">缚丝</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="filter-champ">反勇士</label>
-        <select id="filter-champ">
-          <option value="">全部</option>
-          <option value="势不可挡">势不可挡</option>
-          <option value="屏障">屏障</option>
-          <option value="过载">过载</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Perk 展示</label>
-        <div class="toggle-group">
-          <label class="toggle-chip"><input type="checkbox" id="view-show-pve" checked /> PVE</label>
-          <label class="toggle-chip"><input type="checkbox" id="view-show-pvp" checked /> PVP</label>
+    <div id="view-list" class="view-panel">
+      <div class="toolbar">
+        <div class="field">
+          <label for="search">搜索</label>
+          <input id="search" type="search" placeholder="武器名、Perk、备注…" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="filter-type">武器类型</label>
+          <select id="filter-type"><option value="">全部</option></select>
+        </div>
+        <div class="field">
+          <label for="filter-ammo">弹药类型</label>
+          <select id="filter-ammo">
+            <option value="">全部</option>
+            <option value="主要">主要</option>
+            <option value="特殊">特殊</option>
+            <option value="威能">威能</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="filter-section">获取途径</label>
+          <select id="filter-section"><option value="">全部</option></select>
+        </div>
+        <div class="field">
+          <label for="filter-element">属性</label>
+          <select id="filter-element">
+            <option value="">全部</option>
+            <option value="动能">动能</option>
+            <option value="烈日">烈日</option>
+            <option value="电弧">电弧</option>
+            <option value="虚空">虚空</option>
+            <option value="冰影">冰影</option>
+            <option value="缚丝">缚丝</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="filter-champ">反勇士</label>
+          <select id="filter-champ">
+            <option value="">全部</option>
+            <option value="势不可挡">势不可挡</option>
+            <option value="屏障">屏障</option>
+            <option value="过载">过载</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Perk 展示</label>
+          <div class="toggle-group">
+            <label class="toggle-chip"><input type="checkbox" id="view-show-pve" checked /> PVE</label>
+            <label class="toggle-chip"><input type="checkbox" id="view-show-pvp" checked /> PVP</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button type="button" class="btn-reset" id="reset-filters">重置</button>
         </div>
       </div>
-      <div class="field">
-        <label>&nbsp;</label>
-        <button type="button" class="btn-reset" id="reset-filters">重置</button>
-      </div>
+
+      <main id="app"></main>
     </div>
 
-    <main id="app"></main>
+    <div id="view-db" class="view-panel" hidden>
+      <div class="db-search-block">
+        <label for="db-search">武器库搜索</label>
+        <input id="db-search" type="search" placeholder="例如：烈日 榴弹发射器 嫉妒刺客 诱导推销" autocomplete="off" spellcheck="false" />
+      </div>
+
+      <details class="db-rules" open>
+        <summary>输入规则</summary>
+        <div class="db-rules-body">
+          <ul>
+            <li>多个条件用<strong>空格</strong>分开，须<strong>同时满足</strong>。</li>
+            <li>可直接写：属性、武器类型、弹药、反勇士、框架（支持简称，如「高冲」）、赛季（如 <code>S27</code>）。</li>
+            <li>其余词匹配武器名或 Perk；两个特性词须<strong>一个在第三栏、一个在第四栏</strong>（可互换）。</li>
+          </ul>
+          <p><strong>示例</strong>：<code>烈日 榴弹发射器 嫉妒刺客 诱导推销</code>　<code>高冲 狙击步枪</code>　<code>S27 手炮</code></p>
+        </div>
+      </details>
+
+      <p id="db-hint" class="db-hint">输入条件后显示结果</p>
+      <div id="db-results"></div>
+    </div>
   </div>
 
   <div id="table-hscroll" class="table-hscroll" hidden aria-hidden="true">
@@ -127,7 +164,9 @@ ${css}
   </div>
 
   <script>${dataJs}</script>
+  <script>${weaponsDbJs}</script>
   <script>${storageJs}</script>
+  <script>${dbViewJs}</script>
   <script>${appJs}</script>
 </body>
 </html>
@@ -147,20 +186,29 @@ function escapeHtmlText(str) {
 }
 
 async function fetchShareAssets() {
-  const [cssRes, storageRes, appRes] = await Promise.all([
+  const [cssRes, storageRes, appRes, dbViewRes, weaponsDbRes] = await Promise.all([
     fetch("styles.css"),
     fetch("storage.js"),
     fetch("app.js"),
+    fetch("db-view.js"),
+    fetch("weapons-db.js"),
   ]);
-  if (!cssRes.ok || !storageRes.ok || !appRes.ok) {
-    throw new Error("无法读取 styles.css / storage.js / app.js（请通过本地文件夹或本地服务器打开编辑器后再导出）");
+  if (!cssRes.ok || !storageRes.ok || !appRes.ok || !dbViewRes.ok) {
+    throw new Error(
+      "无法读取 styles.css / storage.js / app.js / db-view.js（请通过本地文件夹或本地服务器打开编辑器后再导出）"
+    );
   }
-  const [css, storageJs, appJs] = await Promise.all([
+  if (!weaponsDbRes.ok) {
+    throw new Error("无法读取 weapons-db.js，分享页需要完整武器库才能使用搜索");
+  }
+  const [css, storageJs, appJs, dbViewJs, weaponsDbJs] = await Promise.all([
     cssRes.text(),
     storageRes.text(),
     appRes.text(),
+    dbViewRes.text(),
+    weaponsDbRes.text(),
   ]);
-  return { css, storageJs, appJs };
+  return { css, storageJs, appJs, dbViewJs, weaponsDbJs };
 }
 
 async function downloadShareHtml(data, filename) {

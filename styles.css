@@ -795,6 +795,156 @@ th.th-pvp {
   background: var(--gold-soft);
 }
 
+.view-mode-switch {
+  display: inline-flex;
+  gap: 0;
+  margin: 1rem 0 0.25rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.view-mode-btn {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  padding: 0.55rem 1.1rem;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.view-mode-btn + .view-mode-btn {
+  border-left: 1px solid var(--line);
+}
+
+.view-mode-btn:hover {
+  color: var(--gold-soft);
+}
+
+.view-mode-btn.is-active {
+  color: var(--bg-deep);
+  background: var(--gold);
+}
+
+.view-panel[hidden] {
+  display: none !important;
+}
+
+.db-search-block {
+  margin-bottom: 1rem;
+}
+
+.db-search-block label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.db-search-block input {
+  width: 100%;
+  max-width: 52rem;
+  padding: 0.75rem 1rem;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+
+.db-search-block input:focus {
+  outline: 1px solid var(--gold);
+  border-color: var(--gold);
+}
+
+.db-rules {
+  margin-bottom: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.db-rules summary {
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: var(--gold-soft);
+  list-style: none;
+}
+
+.db-rules summary::-webkit-details-marker {
+  display: none;
+}
+
+.db-rules summary::before {
+  content: "▸ ";
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.db-rules[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.db-rules-body {
+  padding: 0 1rem 1rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.db-rules-body ol,
+.db-rules-body ul {
+  margin: 0.4rem 0 0.75rem 1.2rem;
+  padding: 0;
+}
+
+.db-rules-body code {
+  font-size: 0.82em;
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+  background: rgba(212, 175, 95, 0.12);
+  color: var(--gold-soft);
+}
+
+.db-rules-note {
+  margin-bottom: 0;
+  opacity: 0.85;
+}
+
+.db-hint,
+.db-empty,
+.db-match-count {
+  margin: 0.75rem 0;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.db-match-count {
+  color: var(--gold-soft);
+  font-weight: 600;
+}
+
+.db-weapon-table .db-perk-cell {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  white-space: normal;
+  min-width: 12rem;
+  max-width: 22rem;
+}
+
+.db-weapon-table .db-season-cell {
+  white-space: nowrap;
+  font-size: 0.82rem;
+}
+
 .status-bar {
   margin-bottom: 1rem;
   padding: 0.75rem 1rem;
