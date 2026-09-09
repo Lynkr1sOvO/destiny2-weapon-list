@@ -83,6 +83,26 @@
     return known.includes(ammo) ? `ammo-${ammo}` : "";
   }
 
+  function weaponTypeSortIndex(type) {
+    const t = String(type || "").trim();
+    if (!t) return WEAPON_TYPES.length + 1;
+    const idx = WEAPON_TYPES.indexOf(t);
+    return idx >= 0 ? idx : WEAPON_TYPES.length;
+  }
+
+  /** 查看页：类型 → 框架 → 名称 */
+  function compareWeapons(a, b) {
+    const typeDiff = weaponTypeSortIndex(a.weaponType) - weaponTypeSortIndex(b.weaponType);
+    if (typeDiff !== 0) return typeDiff;
+    const frameDiff = String(a.frame || "").localeCompare(String(b.frame || ""), "zh-CN");
+    if (frameDiff !== 0) return frameDiff;
+    return String(a.name || "").localeCompare(String(b.name || ""), "zh-CN");
+  }
+
+  function sortViewerWeapons(items) {
+    return items.sort((x, y) => compareWeapons(x.weapon, y.weapon));
+  }
+
   function matchesFilters(weapon, filters) {
     const q = filters.q;
     if (q) {
@@ -463,13 +483,15 @@
 
     if (showSources) {
       const catalog = Array.isArray(DATA.weapons) ? DATA.weapons : [];
-      const weapons = catalog
-        .filter((w) => matchesFilters(w, filters))
-        .map((w) => ({
-          weapon: w,
-          display: resolveDisplay(w, viewPve, viewPvp),
-        }))
-        .filter((item) => item.display.visible);
+      const weapons = sortViewerWeapons(
+        catalog
+          .filter((w) => matchesFilters(w, filters))
+          .map((w) => ({
+            weapon: w,
+            display: resolveDisplay(w, viewPve, viewPvp),
+          }))
+          .filter((item) => item.display.visible)
+      );
 
       visible = weapons.length;
       parts.push(`
@@ -497,13 +519,15 @@
         if (sectionKey !== filters.sectionId) continue;
 
         const sectionWeapons = resolveSectionWeapons(DATA, section);
-        const weapons = sectionWeapons
-          .filter((w) => matchesFilters(w, filters))
-          .map((w) => ({
-            weapon: w,
-            display: resolveDisplay(w, viewPve, viewPvp),
-          }))
-          .filter((item) => item.display.visible);
+        const weapons = sortViewerWeapons(
+          sectionWeapons
+            .filter((w) => matchesFilters(w, filters))
+            .map((w) => ({
+              weapon: w,
+              display: resolveDisplay(w, viewPve, viewPvp),
+            }))
+            .filter((item) => item.display.visible)
+        );
 
         visible += weapons.length;
 
