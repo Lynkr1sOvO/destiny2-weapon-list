@@ -239,6 +239,14 @@ function migrateLegacyWeapon(weapon) {
     next.weaponType = "战斗弓箭";
   }
 
+  // 框架展示名去掉末尾「框架」「帧」
+  if (next.frame) {
+    next.frame = String(next.frame)
+      .trim()
+      .replace(/框架$/u, "")
+      .replace(/帧$/u, "");
+  }
+
   // 旧单套字段 → 迁到 PVE（仅保留 3/4）
   if (weapon.rating && !weapon.ratingPve) next.ratingPve = weapon.rating;
   if (weapon.perk3 && !weapon.perk3Pve) next.perk3Pve = weapon.perk3;
@@ -261,6 +269,7 @@ function migrateLegacyWeapon(weapon) {
   delete next.perk2;
   delete next.perk3;
   delete next.perk4;
+  delete next.originTrait;
 
   if (typeof next.perk1Pve !== "string") next.perk1Pve = "";
   if (typeof next.perk2Pve !== "string") next.perk2Pve = "";

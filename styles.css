@@ -1310,6 +1310,7 @@ th.th-pvp {
   margin: 0.35rem 0 0;
 }
 
+.weapon-db-suggest,
 .weapon-db-picker {
   display: flex;
   flex-direction: column;
@@ -1322,10 +1323,12 @@ th.th-pvp {
   background: rgba(8, 12, 20, 0.92);
 }
 
+.weapon-db-suggest[hidden],
 .weapon-db-picker[hidden] {
   display: none;
 }
 
+.weapon-db-suggest-item,
 .weapon-db-pick {
   display: flex;
   flex-direction: column;
@@ -1341,6 +1344,9 @@ th.th-pvp {
   cursor: pointer;
 }
 
+.weapon-db-suggest-item:hover,
+.weapon-db-suggest-item:focus-visible,
+.weapon-db-suggest-item.is-active,
 .weapon-db-pick:hover,
 .weapon-db-pick:focus-visible {
   border-color: rgba(120, 180, 255, 0.45);
@@ -1348,6 +1354,19 @@ th.th-pvp {
   outline: none;
 }
 
+.weapon-db-pick.is-accel {
+  border-color: color-mix(in srgb, var(--gold-soft) 45%, transparent);
+}
+
+.weapon-db-pick.is-holo {
+  border-color: color-mix(in srgb, #c9a0ff 50%, transparent);
+}
+
+.weapon-db-suggest-name {
+  font-weight: 600;
+}
+
+.weapon-db-suggest-meta,
 .weapon-db-pick-meta {
   font-size: 0.82em;
   color: var(--text-mute);

@@ -24,8 +24,17 @@
     weaponsByName.get(key).push(entry);
   }
   for (const list of weaponsByName.values()) {
-    list.sort((a, b) => (a.seasonNumber || 0) - (b.seasonNumber || 0));
+    list.sort((a, b) => {
+      const s = (a.seasonNumber || 0) - (b.seasonNumber || 0);
+      if (s !== 0) return s;
+      const i = (a.definitionIndex || 0) - (b.definitionIndex || 0);
+      if (i !== 0) return i;
+      return Number(a.isHolofoil) - Number(b.isHolofoil);
+    });
   }
+  const weaponNameIndex = [...weaponsByName.keys()].sort((a, b) =>
+    a.localeCompare(b, "zh-CN")
+  );
 
   let state = loadWeaponData().data;
   let saveTimer = null;
@@ -34,6 +43,9 @@
   let selectedWeaponIndex = 0;
   /** @type {object|null} 当前表单套用的清单版本 */
   let activeDbWeapon = null;
+  /** @type {string[]} */
+  let nameSuggestItems = [];
+  let nameSuggestIndex = -1;
 
   function showStatus(message, type) {
     statusBar.hidden = !message;
@@ -101,12 +113,60 @@
     return weaponsDbList.find((w) => w.hash === n) || null;
   }
 
-  function seasonLabel(entry) {
+  function seasonLabel(entry, siblings) {
     const n = entry.seasonNumber;
     const sn = entry.seasonName || "";
-    if (n != null && sn) return `赛季 ${n} · ${sn}`;
-    if (n != null) return `赛季 ${n}`;
-    return sn || `hash ${entry.hash}`;
+    const eventName = entry.eventName || "";
+    let base = "";
+    if (n != null && sn && eventName) {
+      // 节日枪：同时显示赛季与活动，便于区分哪年的失落节/曙光节等
+      base = `赛季 ${n} · ${sn} · ${eventName}`;
+    } else if (n != null && sn) {
+      base = `赛季 ${n} · ${sn}`;
+    } else if (n != null) {
+      base = `赛季 ${n}`;
+    } else if (eventName) {
+      base = `活动 · ${eventName}`;
+    } else {
+      base = "未知赛季";
+    }
+    if (isAcceleratedAssaultVersion(entry)) {
+      base += " · 加速突击版本";
+    }
+    const skin = holofoilSkinLabel(entry, siblings);
+    if (skin) base += ` · ${skin}`;
+    if (entry.hash != null && entry.hash !== "") {
+      base += ` · ${entry.hash}`;
+    }
+    return base;
+  }
+
+  function isAcceleratedAssaultVersion(entry) {
+    return String(entry?.originTrait || "").includes("加速突击");
+  }
+
+  function isHolofoilVersion(entry) {
+    return Boolean(entry?.isHolofoil);
+  }
+
+  /** 名称已匹配但尚未写入类型/弹药等基础信息 */
+  function needsDbAutofill(weapon) {
+    if (!weapon) return false;
+    return (
+      !String(weapon.weaponType || "").trim() ||
+      !String(weapon.ammoType || "").trim() ||
+      !String(weapon.element || "").trim()
+    );
+  }
+
+  /** 全息/特殊皮肤：同名多枚全息时加序号区分 */
+  function holofoilSkinLabel(entry, siblings) {
+    if (!isHolofoilVersion(entry)) return "";
+    const list = siblings || findDbByName(entry.name);
+    const holos = list.filter(isHolofoilVersion);
+    if (holos.length <= 1) return "全息皮肤版本";
+    const idx = holos.findIndex((w) => w.hash === entry.hash) + 1;
+    return `全息皮肤版本 ${idx}/${holos.length}`;
   }
 
   function parsePerkList(value) {
@@ -283,7 +343,10 @@
     setSelect("ammoType", entry.ammoType || "");
     setSelect(
       "frame",
-      String(entry.frame || "").trim().replace(/框架$/u, "")
+      String(entry.frame || "")
+        .trim()
+        .replace(/框架$/u, "")
+        .replace(/帧$/u, "")
     );
     setSelect("rpm", entry.rpm || "");
     setSelect("element", entry.element || "");
@@ -323,21 +386,140 @@
     if (picker) picker.hidden = true;
   }
 
+  function hideNameSuggest() {
+    const box = root.querySelector("#weapon-db-suggest");
+    if (box) {
+      box.hidden = true;
+      box.innerHTML = "";
+    }
+    nameSuggestItems = [];
+    nameSuggestIndex = -1;
+  }
+
+  function suggestWeaponNames(query) {
+    const q = String(query || "").trim();
+    if (!q) return [];
+    const starts = [];
+    const contains = [];
+    for (const name of weaponNameIndex) {
+      if (name.startsWith(q)) starts.push(name);
+      else if (name.includes(q)) contains.push(name);
+      if (starts.length >= 12) break;
+    }
+    return [...starts, ...contains].slice(0, 12);
+  }
+
+  function highlightSuggestIndex() {
+    const box = root.querySelector("#weapon-db-suggest");
+    if (!box) return;
+    box.querySelectorAll(".weapon-db-suggest-item").forEach((el, i) => {
+      el.classList.toggle("is-active", i === nameSuggestIndex);
+    });
+    const active = box.querySelector(".weapon-db-suggest-item.is-active");
+    active?.scrollIntoView({ block: "nearest" });
+  }
+
+  function showNameSuggest(names) {
+    const box = root.querySelector("#weapon-db-suggest");
+    if (!box) return;
+    nameSuggestItems = names;
+    nameSuggestIndex = names.length ? 0 : -1;
+    if (!names.length) {
+      hideNameSuggest();
+      return;
+    }
+    hideDbPicker();
+    box.innerHTML = names
+      .map((name, i) => {
+        const versions = weaponsByName.get(name) || [];
+        const count = versions.length;
+        const hasAccel = versions.some(isAcceleratedAssaultVersion);
+        const hasHolo = versions.some(isHolofoilVersion);
+        const metaParts = [];
+        if (count > 1) metaParts.push(`${count} 个版本`);
+        else if (versions[0]) metaParts.push(seasonLabel(versions[0], versions));
+        if (hasAccel) metaParts.push("含加速突击");
+        if (hasHolo) metaParts.push("含全息皮肤");
+        return `
+      <button type="button" class="weapon-db-suggest-item${
+        i === 0 ? " is-active" : ""
+      }" data-action="pick-db-name" data-name="${escapeAttr(name)}">
+        <span class="weapon-db-suggest-name">${escapeHtml(name)}</span>
+        <span class="weapon-db-suggest-meta">${escapeHtml(
+          metaParts.join(" · ")
+        )}</span>
+      </button>`;
+      })
+      .join("");
+    box.hidden = false;
+  }
+
+  function updateNameSuggestFromInput() {
+    const form = root.querySelector("#weapon-form");
+    const nameInput = form?.querySelector('[data-field="name"]');
+    if (!nameInput) return;
+    const q = String(nameInput.value || "");
+    if (!q.trim()) {
+      hideNameSuggest();
+      return;
+    }
+    // 已精确匹配全名：直接套用清单（勿只显示提示却不填字段）
+    if (weaponsByName.has(q.trim())) {
+      hideNameSuggest();
+      tryMatchWeaponName();
+      return;
+    }
+    showNameSuggest(suggestWeaponNames(q));
+  }
+
+  function applySuggestedName(name) {
+    const form = root.querySelector("#weapon-form");
+    const nameInput = form?.querySelector('[data-field="name"]');
+    if (!nameInput || !name) return;
+    nameInput.value = name;
+    hideNameSuggest();
+    readFormIntoWeapon();
+    scheduleSave();
+    const item = root.querySelector(
+      `.editor-side-item.is-active[data-action="select-weapon"]`
+    );
+    const w = currentWeapon();
+    if (item && w) {
+      const title = item.querySelector(".editor-side-item-title");
+      const meta = item.querySelector(".editor-side-item-meta");
+      if (title) title.textContent = w.name || "未命名武器";
+      if (meta) meta.textContent = weaponSummary(w);
+    }
+    tryMatchWeaponName();
+  }
+
   function showDbPicker(matches) {
+    hideNameSuggest();
     const picker = root.querySelector("#weapon-db-picker");
     if (!picker) return;
     picker.innerHTML = matches
-      .map(
-        (entry) => `
-      <button type="button" class="weapon-db-pick" data-action="pick-db-version" data-hash="${escapeAttr(
-        String(entry.hash)
-      )}">
-        ${escapeHtml(seasonLabel(entry))}
-        <span class="weapon-db-pick-meta">${escapeHtml(
-          [entry.frame, entry.element, entry.ammoType].filter(Boolean).join(" · ")
-        )}</span>
-      </button>`
-      )
+      .map((entry) => {
+        const accel = isAcceleratedAssaultVersion(entry);
+        const holo = isHolofoilVersion(entry);
+        const meta = [
+          entry.frame,
+          entry.element,
+          entry.ammoType,
+          accel ? "加速突击" : "",
+          holo ? holofoilSkinLabel(entry, matches) : "",
+        ]
+          .filter(Boolean)
+          .join(" · ");
+        return `
+      <button type="button" class="weapon-db-pick${accel ? " is-accel" : ""}${
+          holo ? " is-holo" : ""
+        }" data-action="pick-db-version" data-hash="${escapeAttr(
+          String(entry.hash)
+        )}">
+        ${escapeHtml(seasonLabel(entry, matches))}
+        <span class="weapon-db-pick-meta">${escapeHtml(meta)}</span>
+      </button>`;
+      })
       .join("");
     picker.hidden = false;
   }
@@ -353,7 +535,7 @@
       hint.textContent = `清单匹配：${seasonLabel(entry)}`;
       return;
     }
-    hint.textContent = "输入精确中文名后自动匹配清单版本";
+    hint.textContent = "输入武器名可实时补全；选定后自动匹配清单版本";
   }
 
   function tryMatchWeaponName({ preferHash } = {}) {
@@ -361,6 +543,7 @@
     if (!form) return;
     const nameInput = form.querySelector('[data-field="name"]');
     const name = String(nameInput?.value || "").trim();
+    hideNameSuggest();
     hideDbPicker();
 
     if (!name) {
@@ -381,7 +564,10 @@
     if (preferHash != null) {
       const preferred = matches.find((m) => m.hash === Number(preferHash));
       if (preferred) {
-        if (activeDbWeapon?.hash === preferred.hash) {
+        if (
+          activeDbWeapon?.hash === preferred.hash &&
+          !needsDbAutofill(currentWeapon())
+        ) {
           updateDbMatchHint(preferred);
           hideDbPicker();
           return;
@@ -392,7 +578,10 @@
     }
 
     if (matches.length === 1) {
-      if (activeDbWeapon?.hash === matches[0].hash) {
+      if (
+        activeDbWeapon?.hash === matches[0].hash &&
+        !needsDbAutofill(currentWeapon())
+      ) {
         updateDbMatchHint(matches[0]);
         hideDbPicker();
         return;
@@ -411,6 +600,11 @@
       null;
 
     if (current) {
+      if (needsDbAutofill(weapon)) {
+        applyDbVersion(current, { silent: true });
+        showDbPicker(matches);
+        return;
+      }
       activeDbWeapon = current;
       updateDbMatchHint(current);
       refreshPerkSelects(form, current.slots || {});
@@ -653,7 +847,7 @@
     const dbHint = activeDbWeapon
       ? `清单匹配：${seasonLabel(activeDbWeapon)}`
       : weaponsDbList.length
-        ? "输入精确中文名后自动匹配清单版本"
+        ? "输入武器名可实时补全；选定后自动匹配清单版本"
         : "未加载武器库（缺少 weapons-db.js）";
 
     return `
@@ -663,8 +857,9 @@
         <div class="editor-form-grid">
           <div class="field field-span-2 weapon-name-field">
             <label for="f-name">武器名</label>
-            <input id="f-name" data-field="name" type="text" value="${v("name")}" placeholder="输入精确中文名以自动填充" />
+            <input id="f-name" data-field="name" type="text" value="${v("name")}" placeholder="输入中文名以补全并自动填充" autocomplete="off" />
             <p class="editor-hint" id="weapon-db-hint">${escapeHtml(dbHint)}</p>
+            <div id="weapon-db-suggest" class="weapon-db-suggest" hidden></div>
             <div id="weapon-db-picker" class="weapon-db-picker" hidden></div>
           </div>
           <div class="field">
@@ -677,7 +872,7 @@
           </div>
           <div class="field">
             <label for="f-frame">框架</label>
-            <input id="f-frame" data-field="frame" type="text" value="${v("frame")}" placeholder="精密帧 / 支援 / 适配…" />
+            <input id="f-frame" data-field="frame" type="text" value="${v("frame")}" placeholder="精密 / 支援 / 适配…" />
           </div>
           <div class="field">
             <label for="f-rpm">射速</label>
@@ -821,6 +1016,12 @@
     if (weaponList) {
       weaponList.scrollTop = keepWeaponScroll ? prevWeaponScroll : 0;
     }
+
+    // 名称已能匹配清单，但类型/弹药等仍空 → 补套用（避免只显示「清单匹配」却不填字段）
+    if (weapon && needsDbAutofill(weapon)) {
+      const entry = resolveActiveDbForWeapon(weapon);
+      if (entry) applyDbVersion(entry, { silent: true });
+    }
   }
 
   function updatePerkVisibility() {
@@ -865,26 +1066,71 @@
       const related = e.relatedTarget;
       if (
         related instanceof Element &&
-        related.closest("#weapon-db-picker")
+        (related.closest("#weapon-db-picker") ||
+          related.closest("#weapon-db-suggest"))
       ) {
         return;
       }
-      tryMatchWeaponName();
+      // 延迟关闭，便于点击补全项（部分浏览器 relatedTarget 为空）
+      setTimeout(() => {
+        const active = document.activeElement;
+        if (
+          active instanceof Element &&
+          (active.closest("#weapon-db-picker") ||
+            active.closest("#weapon-db-suggest") ||
+            active.matches('#weapon-form [data-field="name"]'))
+        ) {
+          return;
+        }
+        hideNameSuggest();
+        tryMatchWeaponName();
+      }, 120);
     }
   });
 
   root.addEventListener("keydown", (e) => {
     const target = e.target;
     if (!(target instanceof HTMLElement)) return;
-    if (
-      target.matches('#weapon-form [data-field="name"]') &&
-      e.key === "Enter"
-    ) {
-      e.preventDefault();
-      tryMatchWeaponName();
-      target.blur();
-      return;
+
+    if (target.matches('#weapon-form [data-field="name"]')) {
+      const suggestOpen =
+        nameSuggestItems.length > 0 &&
+        root.querySelector("#weapon-db-suggest") &&
+        !root.querySelector("#weapon-db-suggest").hidden;
+
+      if (suggestOpen && e.key === "ArrowDown") {
+        e.preventDefault();
+        nameSuggestIndex = Math.min(
+          nameSuggestItems.length - 1,
+          nameSuggestIndex + 1
+        );
+        highlightSuggestIndex();
+        return;
+      }
+      if (suggestOpen && e.key === "ArrowUp") {
+        e.preventDefault();
+        nameSuggestIndex = Math.max(0, nameSuggestIndex - 1);
+        highlightSuggestIndex();
+        return;
+      }
+      if (suggestOpen && e.key === "Escape") {
+        e.preventDefault();
+        hideNameSuggest();
+        return;
+      }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (suggestOpen && nameSuggestIndex >= 0) {
+          applySuggestedName(nameSuggestItems[nameSuggestIndex]);
+        } else {
+          hideNameSuggest();
+          tryMatchWeaponName();
+          target.blur();
+        }
+        return;
+      }
     }
+
     if (target.matches("#weapon-form [data-perk-add]") && e.key === "Enter") {
       e.preventDefault();
       const field = target.getAttribute("data-perk-add");
@@ -928,6 +1174,9 @@
       target.matches("#weapon-form [data-field]") ||
       target.matches("#weapon-form [data-perk-option]")
     ) {
+      if (target.matches('[data-field="name"]')) {
+        updateNameSuggestFromInput();
+      }
       if (target.matches('select[data-field="element"]')) {
         target.className = "el-select";
         if (target.value) target.classList.add(`el-${target.value}`);
@@ -1021,11 +1270,27 @@
     scheduleSave();
   });
 
+  root.addEventListener("mousedown", (e) => {
+    const actionable = e.target.closest?.(
+      "[data-action='pick-db-name'], [data-action='pick-db-version']"
+    );
+    if (actionable) {
+      // 避免点击补全/版本项时输入框先失焦导致列表被关掉
+      e.preventDefault();
+    }
+  });
+
   root.addEventListener("click", (e) => {
     const actionable = e.target.closest("[data-action]");
     if (!actionable) return;
 
     const action = actionable.dataset.action;
+
+    if (action === "pick-db-name") {
+      e.preventDefault();
+      applySuggestedName(actionable.dataset.name || "");
+      return;
+    }
 
     if (action === "pick-db-version") {
       const entry = findDbEntry(actionable.dataset.hash);
