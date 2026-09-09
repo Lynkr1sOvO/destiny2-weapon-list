@@ -89,12 +89,16 @@ function emptyWeapon() {
     antiChamp: "",
     showPvePerk: true,
     showPvpPerk: true,
+    perk1Pve: "",
+    perk2Pve: "",
     perk3Pve: "",
     perk4Pve: "",
     perk1Pvp: "",
     perk2Pvp: "",
     perk3Pvp: "",
     perk4Pvp: "",
+    bungieHash: null,
+    seasonNumber: null,
     note: "",
   };
 }
@@ -121,7 +125,19 @@ const WEAPON_TYPES = [
 
 const AMMO_TYPES = ["主要", "特殊", "威能"];
 
-const RATING_TIERS = ["S", "A+", "A", "B+", "B", "C+", "C", "D"];
+const RATING_TIERS = [
+  "S",
+  "A+",
+  "A",
+  "A-",
+  "B+",
+  "B",
+  "B-",
+  "C+",
+  "C",
+  "C-",
+  "D",
+];
 
 function ratingTierClass(rating) {
   const raw = String(rating || "").trim().toUpperCase();
@@ -131,10 +147,13 @@ function ratingTierClass(rating) {
     S: "rating-S",
     "A+": "rating-Ap",
     A: "rating-A",
+    "A-": "rating-Am",
     "B+": "rating-Bp",
     B: "rating-B",
+    "B-": "rating-Bm",
     "C+": "rating-Cp",
     C: "rating-C",
+    "C-": "rating-Cm",
     D: "rating-D",
   };
   return map[normalized] || "rating-empty";
@@ -172,7 +191,11 @@ function hasRollContent(weapon, mode) {
   const suffix = mode === "pvp" ? "Pvp" : "Pve";
   if (mode === "pve") {
     return Boolean(
-      weapon.ratingPve || weapon.perk3Pve || weapon.perk4Pve
+      weapon.ratingPve ||
+        weapon.perk1Pve ||
+        weapon.perk2Pve ||
+        weapon.perk3Pve ||
+        weapon.perk4Pve
     );
   }
   return Boolean(
@@ -238,8 +261,11 @@ function migrateLegacyWeapon(weapon) {
   delete next.perk2;
   delete next.perk3;
   delete next.perk4;
-  delete next.perk1Pve;
-  delete next.perk2Pve;
+
+  if (typeof next.perk1Pve !== "string") next.perk1Pve = "";
+  if (typeof next.perk2Pve !== "string") next.perk2Pve = "";
+  if (next.bungieHash == null || next.bungieHash === "") next.bungieHash = null;
+  if (next.seasonNumber == null || next.seasonNumber === "") next.seasonNumber = null;
 
   return next;
 }
@@ -383,4 +409,53 @@ function makeSectionId(title) {
     .replace(/[^\w\u4e00-\u9fff-]/g, "")
     .slice(0, 24);
   return `${base || "section"}-${Date.now().toString(36)}`;
+}
+
+function getWeaponsDbList() {
+  if (typeof WEAPONS_DB !== "undefined" && Array.isArray(WEAPONS_DB.weapons)) {
+    return WEAPONS_DB.weapons;
+  }
+  return [];
+}
+
+/** 解析 light.gg / Bungie 物品 hash：优先 bungieHash，否则按中文名（+赛季）查武器库 */
+function resolveWeaponItemHash(weapon, dbList) {
+  if (!weapon) return null;
+  if (weapon.bungieHash != null && weapon.bungieHash !== "") {
+    const n = Number(weapon.bungieHash);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  const list = dbList || getWeaponsDbList();
+  if (!list.length) return null;
+  const name = String(weapon.name || "").trim();
+  if (!name) return null;
+  const matches = list.filter((w) => String(w.name || "").trim() === name);
+  if (!matches.length) return null;
+  if (weapon.seasonNumber != null && weapon.seasonNumber !== "") {
+    const season = Number(weapon.seasonNumber);
+    const hit = matches.find((m) => m.seasonNumber === season);
+    if (hit?.hash) return hit.hash;
+  }
+  matches.sort((a, b) => (b.seasonNumber || 0) - (a.seasonNumber || 0));
+  return matches[0]?.hash || null;
+}
+
+function lightggItemUrl(hash) {
+  if (hash == null || hash === "") return "";
+  const n = Number(hash);
+  if (!Number.isFinite(n) || n <= 0) return "";
+  return `https://www.light.gg/db/zh-chs/items/${n}`;
+}
+
+/** 导出分享页前尽量补齐 bungieHash，避免分享页不加载完整武器库 */
+function enrichWeaponsWithBungieHash(data, dbList) {
+  const list = dbList || getWeaponsDbList();
+  const base = data && typeof data === "object" ? data : emptyWeaponData();
+  const weapons = (base.weapons || []).map((raw) => {
+    const weapon = { ...raw };
+    const hash = resolveWeaponItemHash(weapon, list);
+    if (hash != null) weapon.bungieHash = hash;
+    return weapon;
+  });
+  return { ...base, weapons };
 }

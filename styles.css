@@ -23,10 +23,13 @@
   --s: #f0c14a;
   --ap: #9be07a;
   --a: #7dcf8a;
+  --am: #6aba7c;
   --bp: #8eb8e8;
   --b: #7aa6d9;
+  --bm: #6a94c4;
   --cp: #a8b4c4;
   --c: #9aa6b8;
+  --cm: #8894a6;
   --d: #c48888;
   --radius: 2px;
   --shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
@@ -444,6 +447,20 @@ tbody tr.weapon-row:hover {
   color: var(--text);
 }
 
+a.weapon-name-link {
+  color: var(--gold-soft);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--gold-soft) 35%, transparent);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+a.weapon-name-link:hover,
+a.weapon-name-link:focus-visible {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+  outline: none;
+}
+
 .note-cell {
   color: var(--text-dim);
 }
@@ -606,10 +623,13 @@ th.th-pvp {
 .rating-S { color: var(--s); }
 .rating-Ap { color: var(--ap); }
 .rating-A { color: var(--a); }
+.rating-Am { color: var(--am); }
 .rating-Bp { color: var(--bp); }
 .rating-B { color: var(--b); }
+.rating-Bm { color: var(--bm); }
 .rating-Cp { color: var(--cp); }
 .rating-C { color: var(--c); }
+.rating-Cm { color: var(--cm); }
 .rating-D { color: var(--d); }
 .rating-empty { color: var(--text-mute); }
 
@@ -1280,6 +1300,129 @@ th.th-pvp {
 
 .editor-form-section.is-collapsed .editor-form-grid {
   display: none;
+}
+
+.weapon-name-field {
+  position: relative;
+}
+
+.weapon-name-field #weapon-db-hint {
+  margin: 0.35rem 0 0;
+}
+
+.weapon-db-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  max-height: 14rem;
+  overflow: auto;
+  padding: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 12, 20, 0.92);
+}
+
+.weapon-db-picker[hidden] {
+  display: none;
+}
+
+.weapon-db-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.weapon-db-pick:hover,
+.weapon-db-pick:focus-visible {
+  border-color: rgba(120, 180, 255, 0.45);
+  background: rgba(80, 140, 220, 0.16);
+  outline: none;
+}
+
+.weapon-db-pick-meta {
+  font-size: 0.82em;
+  color: var(--text-mute);
+}
+
+.perk-multi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.perk-multi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-height: 12rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-deep);
+}
+
+.editor-form .field .perk-multi-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.28rem 0.15rem;
+  font-size: 0.88rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  line-height: 1.35;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.editor-form .field .perk-multi-option span {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.editor-form .field .perk-multi-option input[type="checkbox"],
+.perk-multi-option input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  min-width: 1rem;
+  margin: 0;
+  padding: 0;
+  flex: 0 0 auto;
+  accent-color: var(--gold);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.perk-multi-empty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-mute);
+}
+
+.perk-multi-add-row {
+  min-width: 0;
+}
+
+.editor-form .field .perk-multi-add-row input,
+.perk-multi-add-row input {
+  width: 100%;
 }
 
 .editor-form-empty {

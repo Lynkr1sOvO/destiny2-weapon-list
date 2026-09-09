@@ -96,6 +96,8 @@
         weapon.antiChamp,
         weapon.ratingPve,
         weapon.ratingPvp,
+        weapon.perk1Pve,
+        weapon.perk2Pve,
         weapon.perk3Pve,
         weapon.perk4Pve,
         weapon.perk1Pvp,
@@ -146,6 +148,19 @@
     return `<td${cls}${rs}${tip}>${content}</td>`;
   }
 
+  function nameCell(weapon, rowspan) {
+    const text = String(weapon?.name || "").trim() || "—";
+    const hash = resolveWeaponItemHash(weapon);
+    const url = lightggItemUrl(hash);
+    if (!url || text === "—") {
+      return td(escapeHtml(text), "name-cell", rowspan, text);
+    }
+    const inner = `<a class="weapon-name-link" href="${escapeHtml(
+      url
+    )}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}</a>`;
+    return td(inner, "name-cell", rowspan, text);
+  }
+
   function plainCell(value, extraClass, rowspan) {
     const text = value || "—";
     return td(escapeHtml(text), extraClass, rowspan, text);
@@ -175,7 +190,7 @@
 
   function baseCells(weapon, rowspan) {
     return [
-      plainCell(weapon.name, "name-cell", rowspan),
+      nameCell(weapon, rowspan),
       plainCell(weapon.weaponType, "type-cell", rowspan),
       tintCell(weapon.ammoType, ammoClass(weapon.ammoType), "", rowspan),
       tintCell(weapon.ratingPve, ratingClass(weapon.ratingPve), "cell-pve", rowspan),
@@ -259,8 +274,8 @@
   function bothPerkCellsPve(weapon) {
     return `
       <td class="mode-tag-cell cell-pve">PVE</td>
-      ${cell("—", "perk-cell cell-pve")}
-      ${cell("—", "perk-cell cell-pve")}
+      ${perkCell(weapon.perk1Pve, "perk-cell cell-pve")}
+      ${perkCell(weapon.perk2Pve, "perk-cell cell-pve")}
       ${perkCell(weapon.perk3Pve, "perk-cell cell-pve")}
       ${perkCell(weapon.perk4Pve, "perk-cell cell-pve")}
     `;

@@ -24,6 +24,12 @@ function loadWeaponDataFromFile() {
 function loadBuilders() {
   const storageCode = read("storage.js");
   const builderCode = read("share-builder.js");
+  let weaponsDbCode = "";
+  try {
+    weaponsDbCode = read("weapons-db.js");
+  } catch {
+    console.warn("未找到 weapons-db.js，分享页可能缺少 light.gg 链接 hash");
+  }
   const ctx = {
     console,
     D2_SHARE_READONLY: undefined,
@@ -36,7 +42,7 @@ function loadBuilders() {
     },
   };
   vm.runInNewContext(
-    `${storageCode}\n${builderCode}\nthis.buildShareHtml = buildShareHtml;\nthis.normalizeWeaponData = normalizeWeaponData;`,
+    `${weaponsDbCode}\n${storageCode}\n${builderCode}\nthis.buildShareHtml = buildShareHtml;\nthis.normalizeWeaponData = normalizeWeaponData;`,
     ctx
   );
   if (typeof ctx.buildShareHtml !== "function") {

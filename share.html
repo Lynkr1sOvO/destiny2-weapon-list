@@ -34,10 +34,13 @@
   --s: #f0c14a;
   --ap: #9be07a;
   --a: #7dcf8a;
+  --am: #6aba7c;
   --bp: #8eb8e8;
   --b: #7aa6d9;
+  --bm: #6a94c4;
   --cp: #a8b4c4;
   --c: #9aa6b8;
+  --cm: #8894a6;
   --d: #c48888;
   --radius: 2px;
   --shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
@@ -455,6 +458,20 @@ tbody tr.weapon-row:hover {
   color: var(--text);
 }
 
+a.weapon-name-link {
+  color: var(--gold-soft);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--gold-soft) 35%, transparent);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+a.weapon-name-link:hover,
+a.weapon-name-link:focus-visible {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+  outline: none;
+}
+
 .note-cell {
   color: var(--text-dim);
 }
@@ -617,10 +634,13 @@ th.th-pvp {
 .rating-S { color: var(--s); }
 .rating-Ap { color: var(--ap); }
 .rating-A { color: var(--a); }
+.rating-Am { color: var(--am); }
 .rating-Bp { color: var(--bp); }
 .rating-B { color: var(--b); }
+.rating-Bm { color: var(--bm); }
 .rating-Cp { color: var(--cp); }
 .rating-C { color: var(--c); }
+.rating-Cm { color: var(--cm); }
 .rating-D { color: var(--d); }
 .rating-empty { color: var(--text-mute); }
 
@@ -1291,6 +1311,129 @@ th.th-pvp {
 
 .editor-form-section.is-collapsed .editor-form-grid {
   display: none;
+}
+
+.weapon-name-field {
+  position: relative;
+}
+
+.weapon-name-field #weapon-db-hint {
+  margin: 0.35rem 0 0;
+}
+
+.weapon-db-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  max-height: 14rem;
+  overflow: auto;
+  padding: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 12, 20, 0.92);
+}
+
+.weapon-db-picker[hidden] {
+  display: none;
+}
+
+.weapon-db-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.weapon-db-pick:hover,
+.weapon-db-pick:focus-visible {
+  border-color: rgba(120, 180, 255, 0.45);
+  background: rgba(80, 140, 220, 0.16);
+  outline: none;
+}
+
+.weapon-db-pick-meta {
+  font-size: 0.82em;
+  color: var(--text-mute);
+}
+
+.perk-multi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.perk-multi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-height: 12rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-deep);
+}
+
+.editor-form .field .perk-multi-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.28rem 0.15rem;
+  font-size: 0.88rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  line-height: 1.35;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.editor-form .field .perk-multi-option span {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.editor-form .field .perk-multi-option input[type="checkbox"],
+.perk-multi-option input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  min-width: 1rem;
+  margin: 0;
+  padding: 0;
+  flex: 0 0 auto;
+  accent-color: var(--gold);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.perk-multi-empty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-mute);
+}
+
+.perk-multi-add-row {
+  min-width: 0;
+}
+
+.editor-form .field .perk-multi-add-row input,
+.perk-multi-add-row input {
+  width: 100%;
 }
 
 .editor-form-empty {
@@ -2146,12 +2289,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "丰盈满溢/嫉妒刺客/金中藏弹",
       "perk4Pve": "洪涝/聚合充能/受控连射",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1225851434,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2167,12 +2314,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "医治/羸弱能量球",
       "perk4Pve": "互惠",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1850748385,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2188,12 +2339,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "冲击支撑/威胁移除器/拳击手",
       "perk4Pve": "失衡弹药/腹背受敌/雪上加霜",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2041617874,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2209,12 +2364,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "霜华窃取者/即兴弹药",
       "perk4Pve": "结晶残花/拳击手/集体拳击",
       "perk1Pvp": "锻造膛线",
       "perk2Pvp": "精确弹药",
       "perk3Pvp": "测距仪",
       "perk4Pvp": "目标锁定",
+      "bungieHash": 822872238,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2230,12 +2389,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "事不过四",
       "perk4Pve": "火线/精准工具/超级杀戮弹匣",
       "perk1Pvp": "槽化枪管",
       "perk2Pvp": "稳固弹药",
       "perk3Pvp": "孤狼",
       "perk4Pvp": "移动目标",
+      "bungieHash": 423677697,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2251,12 +2414,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "幼雏/喂食狂热",
       "perk4Pve": "巨脉蜻蜓/击杀记录",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1120206506,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2272,12 +2439,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "盗墓者/迷惑爆发",
       "perk4Pve": "斗剑士/全明星",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 771811870,
+      "seasonNumber": null,
       "note": "一个好用的perk都没有，谁会用呢"
     },
     {
@@ -2293,12 +2464,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "阻止力/拳击手/威胁移除器",
       "perk4Pve": "战壕炮管/全明星/雪上加霜",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4108648762,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2314,12 +2489,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "霜华窃取者/羸弱能量球/爆破专家",
       "perk4Pve": "墓碑/高爆载荷",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 736362511,
+      "seasonNumber": null,
       "note": "听说羸弱能量球+高爆载荷的产球速度还可以"
     },
     {
@@ -2335,12 +2514,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "嫉妒军械库",
       "perk4Pve": "冰冷弹匣/金中藏弹",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3377522331,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2356,12 +2539,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "嫉妒刺客/金中藏弹",
       "perk4Pve": "受控连射",
       "perk1Pvp": "螺旋膛线/锻造膛线",
       "perk2Pvp": "弹头保险丝",
       "perk3Pvp": "越战越勇",
       "perk4Pvp": "快速启动",
+      "bungieHash": 2366022261,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2377,12 +2564,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "阻止力",
       "perk4Pve": "动能震颤",
       "perk1Pvp": "加长枪管/全口径枪膛/锻造膛线",
       "perk2Pvp": "精确弹药",
       "perk3Pvp": "动态减摆/痛苦之道",
       "perk4Pvp": "狂暴/动能震颤/杀戮弹匣",
+      "bungieHash": 771811871,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2398,12 +2589,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "蜻蜓/涓流充能/爆破专家",
       "perk4Pve": "风暴涌动/伏特子弹",
       "perk1Pvp": "全口径枪膛",
       "perk2Pvp": "精确弹药",
       "perk3Pvp": "移动目标",
       "perk4Pvp": "杀戮弹匣",
+      "bungieHash": 3176697588,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2419,12 +2614,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "羸弱能量球",
       "perk4Pve": "震颤反馈/风暴涌动/居合连斩",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3977827673,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2440,12 +2639,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "治疗弹匣",
       "perk4Pve": "辉耀炽热",
       "perk1Pvp": "加长枪管/全口径枪膛/锻造膛线",
       "perk2Pvp": "精确弹药",
       "perk3Pvp": "治疗弹匣/永动不歇/测距仪/移动目标",
       "perk4Pvp": "杀戮弹匣/精准工具",
+      "bungieHash": null,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2461,12 +2664,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "喂食狂热/治疗弹匣",
       "perk4Pve": "蜻蜓/燃烧野心",
       "perk1Pvp": "锻造膛线/小口径枪膛",
       "perk2Pvp": "精确弹药",
       "perk3Pvp": "治疗弹匣/禅意时刻/动态减摆",
       "perk4Pvp": "测距仪/移动目标",
+      "bungieHash": 2130249527,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2482,12 +2689,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "冲击支撑",
       "perk4Pve": "失衡弹药/狂乱",
       "perk1Pvp": "加长枪管/锻造膛线",
       "perk2Pvp": "大口径弹药/弹跳型弹药",
       "perk3Pvp": "滑行健射/快速命中",
       "perk4Pvp": "失衡弹药/狂暴",
+      "bungieHash": 1291040554,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2503,12 +2714,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3176697589,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2524,12 +2739,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2863808104,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2545,12 +2764,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2776506837,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2566,12 +2789,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1716620044,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2587,12 +2814,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 768696858,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2608,12 +2839,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4113452819,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2629,12 +2864,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3708636616,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2650,12 +2889,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 438540299,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2671,12 +2914,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2191451996,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2692,12 +2939,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 938936806,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2713,12 +2964,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1713388226,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2734,12 +2989,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3085559077,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2755,12 +3014,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1942143745,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2776,12 +3039,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 979721268,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2797,12 +3064,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3273807888,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2818,12 +3089,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2271714488,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2839,12 +3114,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1409524486,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2860,12 +3139,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1066772626,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2881,12 +3164,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 34731066,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2902,12 +3189,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1957301533,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2923,12 +3214,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2511482352,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2944,12 +3239,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 59060498,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2965,12 +3264,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2901221332,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -2986,12 +3289,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1832481283,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3007,12 +3314,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1479562935,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3028,12 +3339,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3326135421,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3049,12 +3364,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1094998581,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3070,12 +3389,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2531614757,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3091,12 +3414,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 334964261,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3112,12 +3439,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2158575991,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3133,12 +3464,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 850999853,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3154,12 +3489,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 52683113,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3175,12 +3514,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1271275406,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3196,12 +3539,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 412265080,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3217,12 +3564,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2274706510,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3238,12 +3589,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2223968549,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3259,12 +3614,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 149110926,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3280,12 +3639,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1692109318,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3301,12 +3664,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2150643740,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3322,12 +3689,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 891765152,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3343,12 +3714,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1715391576,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3364,12 +3739,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 739029152,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3385,12 +3764,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 837298567,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3406,12 +3789,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 189854537,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3427,12 +3814,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 739029153,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3448,12 +3839,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1692372662,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3469,12 +3864,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2325078119,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3490,12 +3889,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2150012406,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3511,12 +3914,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2106353446,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3532,12 +3939,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 673621062,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3553,12 +3964,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3975115486,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3574,12 +3989,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2150012407,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3595,12 +4014,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2579239008,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3616,12 +4039,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 775830132,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3637,12 +4064,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2152350211,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3658,12 +4089,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2839128618,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3679,12 +4114,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 232119851,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3700,12 +4139,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 337893613,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3721,12 +4164,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4277548087,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3742,12 +4189,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1952295804,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3763,12 +4214,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2884908760,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3784,12 +4239,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3790632261,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3805,12 +4264,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4089030727,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3826,12 +4289,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3614211586,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3847,12 +4314,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2776092653,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3868,12 +4339,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2499834164,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3889,12 +4364,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1185633760,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3910,12 +4389,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2776092652,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3931,12 +4414,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3747667917,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3952,12 +4439,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2499834165,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3973,12 +4464,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1117787139,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -3994,12 +4489,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1940352487,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4015,12 +4514,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 218787950,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4036,12 +4539,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1884897338,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4057,12 +4564,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2204165992,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4078,12 +4589,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 293709641,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4099,12 +4614,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1617917863,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4120,12 +4639,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 218787951,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4141,12 +4664,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2370525224,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4162,12 +4689,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "羸弱能量球",
       "perk4Pve": "动能震颤",
       "perk1Pvp": "全口径枪膛/锻造膛线/小口径枪膛",
       "perk2Pvp": "精确弹药",
       "perk3Pvp": "移动目标/测距仪/动态减摆/阻止力",
       "perk4Pvp": "目标锁定/动能震颤/杀戮弹匣/武器大师",
+      "bungieHash": 3026836571,
+      "seasonNumber": null,
       "note": "PVP用途中，阻止力需与目标锁定/动能震颤搭配使用"
     },
     {
@@ -4183,12 +4714,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": false,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1917334929,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4204,12 +4739,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3104013318,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4225,12 +4764,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 911019136,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4246,12 +4789,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "爆破专家/自动填装枪套/重建/爆炸光能",
       "perk4Pve": "集束炸弹/收割者贡品",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2881109029,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4267,12 +4814,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 293709640,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4288,12 +4839,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1884897339,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4309,12 +4864,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 214545213,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4330,12 +4889,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3638723317,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4351,12 +4914,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3001598094,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4372,12 +4939,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1996201272,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4393,12 +4964,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 810474118,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4414,12 +4989,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2920648677,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4435,12 +5014,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 810474119,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4456,12 +5039,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 713132408,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4477,12 +5064,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4276696963,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4498,12 +5089,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3327901954,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4519,12 +5114,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 767170345,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4540,12 +5139,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4276696962,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4561,12 +5164,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "冲击支撑",
       "perk4Pve": "失衡弹药/混沌重塑",
       "perk1Pvp": "锻造膛线/小口径枪膛",
       "perk2Pvp": "弹跳型弹药",
       "perk3Pvp": "动态减摆",
       "perk4Pvp": "武器大师",
+      "bungieHash": 3257283337,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4582,12 +5189,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 697459665,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4603,12 +5214,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2731922624,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4624,12 +5239,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3736001861,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4645,12 +5264,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2480871539,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4666,12 +5289,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3736001860,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4687,12 +5314,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2033531688,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4708,12 +5339,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3736001863,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4729,12 +5364,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 381446446,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4750,12 +5389,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2033531689,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4771,12 +5414,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1229624538,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4792,12 +5439,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 406384293,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4813,12 +5464,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 391069235,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4834,12 +5489,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": null,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4855,12 +5514,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1540621132,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4876,12 +5539,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": null,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4897,12 +5564,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1041028435,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4918,12 +5589,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 747743636,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4939,12 +5614,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3926987546,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4960,12 +5639,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 866434750,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -4981,12 +5664,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 747743637,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5002,12 +5689,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4257236930,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5023,12 +5714,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1041028434,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5044,12 +5739,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3620277039,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5065,12 +5764,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4116518582,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5086,12 +5789,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3496887154,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5107,12 +5814,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2888021252,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5128,12 +5839,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1823308496,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5149,12 +5864,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 407150809,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5170,12 +5889,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1724104236,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5191,12 +5914,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2979965244,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5212,12 +5939,16 @@ const WEAPON_DATA = {
       "antiChamp": "",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2725894221,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5233,12 +5964,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 784540300,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5254,12 +5989,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 617566156,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5275,12 +6014,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 437854388,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5296,12 +6039,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 474671201,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5317,12 +6064,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1572604081,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5338,12 +6089,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3163473092,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5359,12 +6114,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2121132948,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5380,12 +6139,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2723419129,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5401,12 +6164,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1151307006,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5422,12 +6189,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 591672323,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5443,12 +6214,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3977654524,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5464,12 +6239,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2965080304,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5485,12 +6264,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1484294659,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5506,12 +6289,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3448712083,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5527,12 +6314,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1705150753,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5548,12 +6339,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1175295126,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5569,12 +6364,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1813474267,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5590,12 +6389,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 72775246,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5611,12 +6414,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1106017703,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5632,12 +6439,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2884070594,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5653,12 +6464,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3023280734,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5674,12 +6489,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": null,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5695,12 +6514,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2316331767,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5716,12 +6539,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 270610849,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5737,12 +6564,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3910523587,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5758,12 +6589,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2274629609,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5779,12 +6614,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3003492238,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5800,12 +6639,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 76739872,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5821,12 +6664,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1605599021,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5842,12 +6689,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 981450701,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5863,12 +6714,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2449096504,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5884,12 +6739,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4148460558,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5905,12 +6764,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4106258882,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5926,12 +6789,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 135971347,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5947,12 +6814,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 690412397,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5968,12 +6839,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1763361847,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -5989,12 +6864,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 74733286,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6010,12 +6889,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 738446555,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6031,12 +6914,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2838279629,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6052,12 +6939,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 190747610,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6073,12 +6964,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": null,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6094,12 +6989,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1242785638,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6115,12 +7014,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 649691506,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6136,12 +7039,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 444627789,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6157,12 +7064,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 827835657,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6178,12 +7089,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 89693562,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6199,12 +7114,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1524387902,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6220,12 +7139,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1197073834,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6241,12 +7164,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": false,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4146673635,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6262,12 +7189,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": null,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6283,12 +7214,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4146673634,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6304,12 +7239,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 471764396,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6325,12 +7264,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1323862250,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6346,12 +7289,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1288422452,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6367,12 +7314,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2699423382,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6388,12 +7339,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4049127142,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6409,12 +7364,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1956186483,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6430,12 +7389,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3602242905,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6451,12 +7414,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3201200906,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6472,12 +7439,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": null,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6493,12 +7464,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2344383760,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6514,12 +7489,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1402874079,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6535,12 +7514,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 358190158,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6556,12 +7539,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3946054154,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6577,12 +7564,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2155534128,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6598,12 +7589,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1411560894,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6619,12 +7614,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4090134063,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6640,12 +7639,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1663482635,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6661,12 +7664,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1193318082,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6682,12 +7689,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4045298483,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6703,12 +7714,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3744058588,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6724,12 +7739,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 198068259,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6745,12 +7764,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4045298482,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6766,12 +7789,16 @@ const WEAPON_DATA = {
       "antiChamp": "过载",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 963732594,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6787,12 +7814,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 963732595,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6808,12 +7839,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2188356726,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6829,12 +7864,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 3142989221,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6850,12 +7889,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 852069910,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6871,12 +7914,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 852069911,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6892,12 +7939,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2201323795,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6913,12 +7964,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4021098352,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6934,12 +7989,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4021098353,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6955,12 +8014,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 2363113134,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6976,12 +8039,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 1207321710,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -6997,12 +8064,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4011513985,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -7018,12 +8089,16 @@ const WEAPON_DATA = {
       "antiChamp": "势不可挡",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 951529995,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -7039,12 +8114,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4237970862,
+      "seasonNumber": null,
       "note": ""
     },
     {
@@ -7060,12 +8139,16 @@ const WEAPON_DATA = {
       "antiChamp": "屏障",
       "showPvePerk": true,
       "showPvpPerk": true,
+      "perk1Pve": "",
+      "perk2Pve": "",
       "perk3Pve": "",
       "perk4Pve": "",
       "perk1Pvp": "",
       "perk2Pvp": "",
       "perk3Pvp": "",
       "perk4Pvp": "",
+      "bungieHash": 4037675261,
+      "seasonNumber": null,
       "note": ""
     }
   ]
@@ -7161,12 +8244,16 @@ function emptyWeapon() {
     antiChamp: "",
     showPvePerk: true,
     showPvpPerk: true,
+    perk1Pve: "",
+    perk2Pve: "",
     perk3Pve: "",
     perk4Pve: "",
     perk1Pvp: "",
     perk2Pvp: "",
     perk3Pvp: "",
     perk4Pvp: "",
+    bungieHash: null,
+    seasonNumber: null,
     note: "",
   };
 }
@@ -7193,7 +8280,19 @@ const WEAPON_TYPES = [
 
 const AMMO_TYPES = ["主要", "特殊", "威能"];
 
-const RATING_TIERS = ["S", "A+", "A", "B+", "B", "C+", "C", "D"];
+const RATING_TIERS = [
+  "S",
+  "A+",
+  "A",
+  "A-",
+  "B+",
+  "B",
+  "B-",
+  "C+",
+  "C",
+  "C-",
+  "D",
+];
 
 function ratingTierClass(rating) {
   const raw = String(rating || "").trim().toUpperCase();
@@ -7203,10 +8302,13 @@ function ratingTierClass(rating) {
     S: "rating-S",
     "A+": "rating-Ap",
     A: "rating-A",
+    "A-": "rating-Am",
     "B+": "rating-Bp",
     B: "rating-B",
+    "B-": "rating-Bm",
     "C+": "rating-Cp",
     C: "rating-C",
+    "C-": "rating-Cm",
     D: "rating-D",
   };
   return map[normalized] || "rating-empty";
@@ -7244,7 +8346,11 @@ function hasRollContent(weapon, mode) {
   const suffix = mode === "pvp" ? "Pvp" : "Pve";
   if (mode === "pve") {
     return Boolean(
-      weapon.ratingPve || weapon.perk3Pve || weapon.perk4Pve
+      weapon.ratingPve ||
+        weapon.perk1Pve ||
+        weapon.perk2Pve ||
+        weapon.perk3Pve ||
+        weapon.perk4Pve
     );
   }
   return Boolean(
@@ -7310,8 +8416,11 @@ function migrateLegacyWeapon(weapon) {
   delete next.perk2;
   delete next.perk3;
   delete next.perk4;
-  delete next.perk1Pve;
-  delete next.perk2Pve;
+
+  if (typeof next.perk1Pve !== "string") next.perk1Pve = "";
+  if (typeof next.perk2Pve !== "string") next.perk2Pve = "";
+  if (next.bungieHash == null || next.bungieHash === "") next.bungieHash = null;
+  if (next.seasonNumber == null || next.seasonNumber === "") next.seasonNumber = null;
 
   return next;
 }
@@ -7456,6 +8565,55 @@ function makeSectionId(title) {
     .slice(0, 24);
   return `${base || "section"}-${Date.now().toString(36)}`;
 }
+
+function getWeaponsDbList() {
+  if (typeof WEAPONS_DB !== "undefined" && Array.isArray(WEAPONS_DB.weapons)) {
+    return WEAPONS_DB.weapons;
+  }
+  return [];
+}
+
+/** 解析 light.gg / Bungie 物品 hash：优先 bungieHash，否则按中文名（+赛季）查武器库 */
+function resolveWeaponItemHash(weapon, dbList) {
+  if (!weapon) return null;
+  if (weapon.bungieHash != null && weapon.bungieHash !== "") {
+    const n = Number(weapon.bungieHash);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  const list = dbList || getWeaponsDbList();
+  if (!list.length) return null;
+  const name = String(weapon.name || "").trim();
+  if (!name) return null;
+  const matches = list.filter((w) => String(w.name || "").trim() === name);
+  if (!matches.length) return null;
+  if (weapon.seasonNumber != null && weapon.seasonNumber !== "") {
+    const season = Number(weapon.seasonNumber);
+    const hit = matches.find((m) => m.seasonNumber === season);
+    if (hit?.hash) return hit.hash;
+  }
+  matches.sort((a, b) => (b.seasonNumber || 0) - (a.seasonNumber || 0));
+  return matches[0]?.hash || null;
+}
+
+function lightggItemUrl(hash) {
+  if (hash == null || hash === "") return "";
+  const n = Number(hash);
+  if (!Number.isFinite(n) || n <= 0) return "";
+  return `https://www.light.gg/db/zh-chs/items/${n}`;
+}
+
+/** 导出分享页前尽量补齐 bungieHash，避免分享页不加载完整武器库 */
+function enrichWeaponsWithBungieHash(data, dbList) {
+  const list = dbList || getWeaponsDbList();
+  const base = data && typeof data === "object" ? data : emptyWeaponData();
+  const weapons = (base.weapons || []).map((raw) => {
+    const weapon = { ...raw };
+    const hash = resolveWeaponItemHash(weapon, list);
+    if (hash != null) weapon.bungieHash = hash;
+    return weapon;
+  });
+  return { ...base, weapons };
+}
 </script>
   <script>(function () {
   const root = document.getElementById("app");
@@ -7555,6 +8713,8 @@ function makeSectionId(title) {
         weapon.antiChamp,
         weapon.ratingPve,
         weapon.ratingPvp,
+        weapon.perk1Pve,
+        weapon.perk2Pve,
         weapon.perk3Pve,
         weapon.perk4Pve,
         weapon.perk1Pvp,
@@ -7605,6 +8765,19 @@ function makeSectionId(title) {
     return `<td${cls}${rs}${tip}>${content}</td>`;
   }
 
+  function nameCell(weapon, rowspan) {
+    const text = String(weapon?.name || "").trim() || "—";
+    const hash = resolveWeaponItemHash(weapon);
+    const url = lightggItemUrl(hash);
+    if (!url || text === "—") {
+      return td(escapeHtml(text), "name-cell", rowspan, text);
+    }
+    const inner = `<a class="weapon-name-link" href="${escapeHtml(
+      url
+    )}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}</a>`;
+    return td(inner, "name-cell", rowspan, text);
+  }
+
   function plainCell(value, extraClass, rowspan) {
     const text = value || "—";
     return td(escapeHtml(text), extraClass, rowspan, text);
@@ -7634,7 +8807,7 @@ function makeSectionId(title) {
 
   function baseCells(weapon, rowspan) {
     return [
-      plainCell(weapon.name, "name-cell", rowspan),
+      nameCell(weapon, rowspan),
       plainCell(weapon.weaponType, "type-cell", rowspan),
       tintCell(weapon.ammoType, ammoClass(weapon.ammoType), "", rowspan),
       tintCell(weapon.ratingPve, ratingClass(weapon.ratingPve), "cell-pve", rowspan),
@@ -7718,8 +8891,8 @@ function makeSectionId(title) {
   function bothPerkCellsPve(weapon) {
     return `
       <td class="mode-tag-cell cell-pve">PVE</td>
-      ${cell("—", "perk-cell cell-pve")}
-      ${cell("—", "perk-cell cell-pve")}
+      ${perkCell(weapon.perk1Pve, "perk-cell cell-pve")}
+      ${perkCell(weapon.perk2Pve, "perk-cell cell-pve")}
       ${perkCell(weapon.perk3Pve, "perk-cell cell-pve")}
       ${perkCell(weapon.perk4Pve, "perk-cell cell-pve")}
     `;

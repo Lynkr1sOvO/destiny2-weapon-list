@@ -10,12 +10,30 @@
   const TYPE_OPTIONS = ["", ...WEAPON_TYPES];
   const AMMO_OPTIONS = ["", ...AMMO_TYPES];
   const CHAMPS = ["势不可挡", "屏障", "过载"];
+  const PERK_SLOT_KEYS = ["perk1", "perk2", "perk3", "perk4"];
+
+  const weaponsDbList =
+    typeof WEAPONS_DB !== "undefined" && Array.isArray(WEAPONS_DB.weapons)
+      ? WEAPONS_DB.weapons
+      : [];
+  const weaponsByName = new Map();
+  for (const entry of weaponsDbList) {
+    const key = String(entry.name || "").trim();
+    if (!key) continue;
+    if (!weaponsByName.has(key)) weaponsByName.set(key, []);
+    weaponsByName.get(key).push(entry);
+  }
+  for (const list of weaponsByName.values()) {
+    list.sort((a, b) => (a.seasonNumber || 0) - (b.seasonNumber || 0));
+  }
 
   let state = loadWeaponData().data;
   let saveTimer = null;
   let dirty = false;
   let selectedSectionId = state.sections[0]?.id || null;
   let selectedWeaponIndex = 0;
+  /** @type {object|null} 当前表单套用的清单版本 */
+  let activeDbWeapon = null;
 
   function showStatus(message, type) {
     statusBar.hidden = !message;
@@ -73,6 +91,338 @@
       .join("");
   }
 
+  function findDbByName(name) {
+    return weaponsByName.get(String(name || "").trim()) || [];
+  }
+
+  function findDbEntry(hash) {
+    if (hash == null || hash === "") return null;
+    const n = Number(hash);
+    return weaponsDbList.find((w) => w.hash === n) || null;
+  }
+
+  function seasonLabel(entry) {
+    const n = entry.seasonNumber;
+    const sn = entry.seasonName || "";
+    if (n != null && sn) return `赛季 ${n} · ${sn}`;
+    if (n != null) return `赛季 ${n}`;
+    return sn || `hash ${entry.hash}`;
+  }
+
+  function parsePerkList(value) {
+    return String(value || "")
+      .split("/")
+      .map((part) => part.trim())
+      .filter(Boolean);
+  }
+
+  function joinPerkList(names) {
+    const seen = new Set();
+    const out = [];
+    for (const raw of names) {
+      const name = String(raw || "").trim();
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
+      out.push(name);
+    }
+    return out.join("/");
+  }
+
+  function readPerkField(form, field) {
+    const wrap = form.querySelector(`[data-perk-field="${field}"]`);
+    if (!wrap) {
+      return form.querySelector(`[data-field="${field}"]`)?.value ?? "";
+    }
+    const checked = [
+      ...wrap.querySelectorAll("input[data-perk-option]:checked"),
+    ].map((el) => el.getAttribute("data-perk-option") || "");
+    return joinPerkList(checked);
+  }
+
+  function perkMultiHtml(field, selected, pool, disabled) {
+    const selectedList = parsePerkList(selected);
+    const selectedSet = new Set(selectedList);
+    const list = Array.isArray(pool) ? [...pool] : [];
+    const extras = selectedList.filter((name) => !list.includes(name));
+    const names = [...extras, ...list];
+    const options =
+      names
+        .map((name) => {
+          const checked = selectedSet.has(name) ? " checked" : "";
+          return `<label class="perk-multi-option"><input type="checkbox" data-perk-option="${escapeAttr(
+            name
+          )}"${checked}${disabled ? " disabled" : ""} /> <span>${escapeHtml(
+            name
+          )}</span></label>`;
+        })
+        .join("") ||
+      `<p class="perk-multi-empty">暂无选项；匹配清单后显示，或在下方添加</p>`;
+
+    return `
+      <div class="perk-multi" data-perk-field="${escapeAttr(field)}" id="f-${escapeAttr(
+      field
+    )}">
+        <div class="perk-multi-list">${options}</div>
+        <div class="perk-multi-add-row">
+          <input type="text" class="perk-multi-add" data-perk-add="${escapeAttr(
+            field
+          )}" placeholder="自定义添加，回车确认" ${disabled ? "disabled" : ""} />
+        </div>
+      </div>
+    `;
+  }
+
+  function refreshPerkSelects(form, slots) {
+    if (!form) return;
+    const pools = slots || activeDbWeapon?.slots || {};
+    const showPve = form.querySelector('[data-field="showPvePerk"]')?.checked;
+    const showPvp = form.querySelector('[data-field="showPvpPerk"]')?.checked;
+
+    for (const slot of PERK_SLOT_KEYS) {
+      const pool = pools[slot] || [];
+      for (const mode of ["Pve", "Pvp"]) {
+        const field = `${slot}${mode}`;
+        const wrap = form.querySelector(`[data-perk-field="${field}"]`);
+        if (!wrap) continue;
+        const prev = readPerkField(form, field);
+        const enabled = mode === "Pve" ? showPve : showPvp;
+        const parent = wrap.parentElement;
+        if (!parent) continue;
+        const label = parent.querySelector("label");
+        const labelHtml = label ? label.outerHTML : "";
+        parent.innerHTML =
+          labelHtml + perkMultiHtml(field, prev, pool, !enabled);
+      }
+    }
+  }
+
+  function addCustomPerk(field, name) {
+    const form = root.querySelector("#weapon-form");
+    const wrap = form?.querySelector(`[data-perk-field="${field}"]`);
+    if (!form || !wrap) return;
+    const value = String(name || "").trim();
+    if (!value) return;
+    const list = wrap.querySelector(".perk-multi-list");
+    if (!list) return;
+    const existing = [
+      ...list.querySelectorAll("input[data-perk-option]"),
+    ].find((el) => el.getAttribute("data-perk-option") === value);
+    if (existing) {
+      existing.checked = true;
+      return;
+    }
+    const empty = list.querySelector(".perk-multi-empty");
+    if (empty) empty.remove();
+    const label = document.createElement("label");
+    label.className = "perk-multi-option";
+    label.innerHTML = `<input type="checkbox" data-perk-option="${escapeAttr(
+      value
+    )}" checked /> <span>${escapeHtml(value)}</span>`;
+    list.appendChild(label);
+  }
+
+  function resolveActiveDbForWeapon(weapon) {
+    if (!weapon) return null;
+    if (weapon.bungieHash != null) {
+      const byHash = findDbEntry(weapon.bungieHash);
+      if (byHash) return byHash;
+    }
+    const matches = findDbByName(weapon.name);
+    if (matches.length === 1) return matches[0];
+    if (weapon.seasonNumber != null) {
+      const hit = matches.find(
+        (m) => m.seasonNumber === Number(weapon.seasonNumber)
+      );
+      if (hit) return hit;
+    }
+    return null;
+  }
+
+  function applyDbVersion(entry, { silent } = {}) {
+    const form = root.querySelector("#weapon-form");
+    const weapon = currentWeapon();
+    if (!form || !weapon || !entry) return;
+
+    activeDbWeapon = entry;
+
+    const setSelect = (field, value) => {
+      const el = form.querySelector(`[data-field="${field}"]`);
+      if (!el) return;
+      const v = value == null ? "" : String(value);
+      if (el.tagName === "SELECT") {
+        let has = [...el.options].some((o) => o.value === v);
+        if (!has) {
+          const opt = document.createElement("option");
+          opt.value = v;
+          opt.textContent = v || "—";
+          if (v === "") {
+            opt.disabled = false;
+            el.insertBefore(opt, el.firstChild);
+          } else {
+            el.appendChild(opt);
+          }
+        } else if (v === "") {
+          const empty = [...el.options].find((o) => o.value === "");
+          if (empty) empty.disabled = false;
+        }
+        el.value = v;
+      } else {
+        el.value = v;
+      }
+      if (field === "element") {
+        el.className = "el-select";
+        if (el.value) el.classList.add(`el-${el.value}`);
+      }
+      if (field === "ammoType") {
+        el.className = "ammo-select";
+        if (el.value) el.classList.add(`ammo-${el.value}`);
+      }
+    };
+
+    setSelect("weaponType", entry.weaponType || "");
+    setSelect("ammoType", entry.ammoType || "");
+    setSelect(
+      "frame",
+      String(entry.frame || "").trim().replace(/框架$/u, "")
+    );
+    setSelect("rpm", entry.rpm || "");
+    setSelect("element", entry.element || "");
+    setSelect("antiChamp", entry.antiChamp || "");
+
+    const idx = state.weapons.findIndex((w) => w.id === weapon.id);
+    if (idx >= 0) {
+      state.weapons[idx].bungieHash = entry.hash;
+      state.weapons[idx].seasonNumber =
+        entry.seasonNumber == null ? null : entry.seasonNumber;
+    }
+
+    refreshPerkSelects(form, entry.slots || {});
+    hideDbPicker();
+    updateDbMatchHint(entry);
+    readFormIntoWeapon();
+    scheduleSave();
+
+    const item = root.querySelector(
+      `.editor-side-item.is-active[data-action="select-weapon"]`
+    );
+    const w = currentWeapon();
+    if (item && w) {
+      const title = item.querySelector(".editor-side-item-title");
+      const meta = item.querySelector(".editor-side-item-meta");
+      if (title) title.textContent = w.name || "未命名武器";
+      if (meta) meta.textContent = weaponSummary(w);
+    }
+
+    if (!silent) {
+      showStatus(`已套用清单：${seasonLabel(entry)}`, "ok");
+    }
+  }
+
+  function hideDbPicker() {
+    const picker = root.querySelector("#weapon-db-picker");
+    if (picker) picker.hidden = true;
+  }
+
+  function showDbPicker(matches) {
+    const picker = root.querySelector("#weapon-db-picker");
+    if (!picker) return;
+    picker.innerHTML = matches
+      .map(
+        (entry) => `
+      <button type="button" class="weapon-db-pick" data-action="pick-db-version" data-hash="${escapeAttr(
+        String(entry.hash)
+      )}">
+        ${escapeHtml(seasonLabel(entry))}
+        <span class="weapon-db-pick-meta">${escapeHtml(
+          [entry.frame, entry.element, entry.ammoType].filter(Boolean).join(" · ")
+        )}</span>
+      </button>`
+      )
+      .join("");
+    picker.hidden = false;
+  }
+
+  function updateDbMatchHint(entry) {
+    const hint = root.querySelector("#weapon-db-hint");
+    if (!hint) return;
+    if (!weaponsDbList.length) {
+      hint.textContent = "未加载武器库（缺少 weapons-db.js）";
+      return;
+    }
+    if (entry) {
+      hint.textContent = `清单匹配：${seasonLabel(entry)}`;
+      return;
+    }
+    hint.textContent = "输入精确中文名后自动匹配清单版本";
+  }
+
+  function tryMatchWeaponName({ preferHash } = {}) {
+    const form = root.querySelector("#weapon-form");
+    if (!form) return;
+    const nameInput = form.querySelector('[data-field="name"]');
+    const name = String(nameInput?.value || "").trim();
+    hideDbPicker();
+
+    if (!name) {
+      activeDbWeapon = null;
+      updateDbMatchHint(null);
+      refreshPerkSelects(form, {});
+      return;
+    }
+
+    const matches = findDbByName(name);
+    if (!matches.length) {
+      activeDbWeapon = null;
+      updateDbMatchHint(null);
+      refreshPerkSelects(form, {});
+      return;
+    }
+
+    if (preferHash != null) {
+      const preferred = matches.find((m) => m.hash === Number(preferHash));
+      if (preferred) {
+        if (activeDbWeapon?.hash === preferred.hash) {
+          updateDbMatchHint(preferred);
+          hideDbPicker();
+          return;
+        }
+        applyDbVersion(preferred, { silent: true });
+        return;
+      }
+    }
+
+    if (matches.length === 1) {
+      if (activeDbWeapon?.hash === matches[0].hash) {
+        updateDbMatchHint(matches[0]);
+        hideDbPicker();
+        return;
+      }
+      applyDbVersion(matches[0]);
+      return;
+    }
+
+    // 多版本：若已选 hash/赛季仍在列表中则保留，否则弹出选择
+    const weapon = currentWeapon();
+    const current =
+      (weapon?.bungieHash != null &&
+        matches.find((m) => m.hash === Number(weapon.bungieHash))) ||
+      (activeDbWeapon &&
+        matches.find((m) => m.hash === activeDbWeapon.hash)) ||
+      null;
+
+    if (current) {
+      activeDbWeapon = current;
+      updateDbMatchHint(current);
+      refreshPerkSelects(form, current.slots || {});
+      showDbPicker(matches);
+      return;
+    }
+
+    updateDbMatchHint(null);
+    showDbPicker(matches);
+    showStatus(`「${name}」有 ${matches.length} 个赛季版本，请选择`, "info");
+  }
+
   function currentSection() {
     return state.sections.find((s) => s.id === selectedSectionId) || null;
   }
@@ -113,6 +463,7 @@
     if (!form || !weapon) return;
 
     const get = (name) => form.querySelector(`[data-field="${name}"]`)?.value ?? "";
+    const getPerk = (name) => readPerkField(form, name);
     const checked = (name) =>
       Boolean(form.querySelector(`[data-field="${name}"]`)?.checked);
 
@@ -133,12 +484,22 @@
       antiChamp: get("antiChamp").trim(),
       showPvePerk: checked("showPvePerk"),
       showPvpPerk: checked("showPvpPerk"),
-      perk3Pve: get("perk3Pve").trim(),
-      perk4Pve: get("perk4Pve").trim(),
-      perk1Pvp: get("perk1Pvp").trim(),
-      perk2Pvp: get("perk2Pvp").trim(),
-      perk3Pvp: get("perk3Pvp").trim(),
-      perk4Pvp: get("perk4Pvp").trim(),
+      perk1Pve: getPerk("perk1Pve"),
+      perk2Pve: getPerk("perk2Pve"),
+      perk3Pve: getPerk("perk3Pve"),
+      perk4Pve: getPerk("perk4Pve"),
+      perk1Pvp: getPerk("perk1Pvp"),
+      perk2Pvp: getPerk("perk2Pvp"),
+      perk3Pvp: getPerk("perk3Pvp"),
+      perk4Pvp: getPerk("perk4Pvp"),
+      bungieHash:
+        activeDbWeapon?.hash ??
+        state.weapons[idx].bungieHash ??
+        null,
+      seasonNumber:
+        activeDbWeapon?.seasonNumber ??
+        state.weapons[idx].seasonNumber ??
+        null,
       note: get("note").trim(),
     };
   }
@@ -287,15 +648,24 @@
     const showPve = w.showPvePerk !== false;
     const showPvp = w.showPvpPerk !== false;
     const v = (key) => escapeAttr(w[key] || "");
+    activeDbWeapon = resolveActiveDbForWeapon(w);
+    const slots = activeDbWeapon?.slots || {};
+    const dbHint = activeDbWeapon
+      ? `清单匹配：${seasonLabel(activeDbWeapon)}`
+      : weaponsDbList.length
+        ? "输入精确中文名后自动匹配清单版本"
+        : "未加载武器库（缺少 weapons-db.js）";
 
     return `
       <form id="weapon-form" class="editor-form" autocomplete="off">
         <h2 class="editor-form-title">编辑武器</h2>
 
         <div class="editor-form-grid">
-          <div class="field field-span-2">
+          <div class="field field-span-2 weapon-name-field">
             <label for="f-name">武器名</label>
-            <input id="f-name" data-field="name" type="text" value="${v("name")}" placeholder="输入武器名称" />
+            <input id="f-name" data-field="name" type="text" value="${v("name")}" placeholder="输入精确中文名以自动填充" />
+            <p class="editor-hint" id="weapon-db-hint">${escapeHtml(dbHint)}</p>
+            <div id="weapon-db-picker" class="weapon-db-picker" hidden></div>
           </div>
           <div class="field">
             <label for="f-type">武器类型</label>
@@ -358,12 +728,20 @@
           <h4>PVE Perk</h4>
           <div class="editor-form-grid">
             <div class="field">
-              <label for="f-perk3-pve">Perk 3</label>
-              <input id="f-perk3-pve" data-field="perk3Pve" type="text" value="${v("perk3Pve")}" ${showPve ? "" : "disabled"} />
+              <label for="f-perk1Pve">Perk 1（枪管/刀片）</label>
+              ${perkMultiHtml("perk1Pve", w.perk1Pve, slots.perk1, !showPve)}
             </div>
             <div class="field">
-              <label for="f-perk4-pve">Perk 4</label>
-              <input id="f-perk4-pve" data-field="perk4Pve" type="text" value="${v("perk4Pve")}" ${showPve ? "" : "disabled"} />
+              <label for="f-perk2Pve">Perk 2（弹匣/刀剑格）</label>
+              ${perkMultiHtml("perk2Pve", w.perk2Pve, slots.perk2, !showPve)}
+            </div>
+            <div class="field">
+              <label for="f-perk3Pve">Perk 3</label>
+              ${perkMultiHtml("perk3Pve", w.perk3Pve, slots.perk3, !showPve)}
+            </div>
+            <div class="field">
+              <label for="f-perk4Pve">Perk 4</label>
+              ${perkMultiHtml("perk4Pve", w.perk4Pve, slots.perk4, !showPve)}
             </div>
           </div>
         </div>
@@ -372,20 +750,20 @@
           <h4>PVP Perk</h4>
           <div class="editor-form-grid">
             <div class="field">
-              <label for="f-perk1-pvp">Perk 1</label>
-              <input id="f-perk1-pvp" data-field="perk1Pvp" type="text" value="${v("perk1Pvp")}" ${showPvp ? "" : "disabled"} />
+              <label for="f-perk1Pvp">Perk 1（枪管/刀片）</label>
+              ${perkMultiHtml("perk1Pvp", w.perk1Pvp, slots.perk1, !showPvp)}
             </div>
             <div class="field">
-              <label for="f-perk2-pvp">Perk 2</label>
-              <input id="f-perk2-pvp" data-field="perk2Pvp" type="text" value="${v("perk2Pvp")}" ${showPvp ? "" : "disabled"} />
+              <label for="f-perk2Pvp">Perk 2（弹匣/刀剑格）</label>
+              ${perkMultiHtml("perk2Pvp", w.perk2Pvp, slots.perk2, !showPvp)}
             </div>
             <div class="field">
-              <label for="f-perk3-pvp">Perk 3</label>
-              <input id="f-perk3-pvp" data-field="perk3Pvp" type="text" value="${v("perk3Pvp")}" ${showPvp ? "" : "disabled"} />
+              <label for="f-perk3Pvp">Perk 3</label>
+              ${perkMultiHtml("perk3Pvp", w.perk3Pvp, slots.perk3, !showPvp)}
             </div>
             <div class="field">
-              <label for="f-perk4-pvp">Perk 4</label>
-              <input id="f-perk4-pvp" data-field="perk4Pvp" type="text" value="${v("perk4Pvp")}" ${showPvp ? "" : "disabled"} />
+              <label for="f-perk4Pvp">Perk 4</label>
+              ${perkMultiHtml("perk4Pvp", w.perk4Pvp, slots.perk4, !showPvp)}
             </div>
           </div>
         </div>
@@ -454,13 +832,13 @@
     const pvpBlock = form.querySelector("#pvp-perk-block");
     if (pveBlock) {
       pveBlock.classList.toggle("is-collapsed", !showPve);
-      pveBlock.querySelectorAll("input").forEach((el) => {
+      pveBlock.querySelectorAll("input, select").forEach((el) => {
         el.disabled = !showPve;
       });
     }
     if (pvpBlock) {
       pvpBlock.classList.toggle("is-collapsed", !showPvp);
-      pvpBlock.querySelectorAll("input").forEach((el) => {
+      pvpBlock.querySelectorAll("input, select").forEach((el) => {
         el.disabled = !showPvp;
       });
     }
@@ -479,6 +857,45 @@
     render();
     markSaved();
   }
+
+  root.addEventListener("focusout", (e) => {
+    const target = e.target;
+    if (!(target instanceof HTMLElement)) return;
+    if (target.matches('#weapon-form [data-field="name"]')) {
+      const related = e.relatedTarget;
+      if (
+        related instanceof Element &&
+        related.closest("#weapon-db-picker")
+      ) {
+        return;
+      }
+      tryMatchWeaponName();
+    }
+  });
+
+  root.addEventListener("keydown", (e) => {
+    const target = e.target;
+    if (!(target instanceof HTMLElement)) return;
+    if (
+      target.matches('#weapon-form [data-field="name"]') &&
+      e.key === "Enter"
+    ) {
+      e.preventDefault();
+      tryMatchWeaponName();
+      target.blur();
+      return;
+    }
+    if (target.matches("#weapon-form [data-perk-add]") && e.key === "Enter") {
+      e.preventDefault();
+      const field = target.getAttribute("data-perk-add");
+      if (field) {
+        addCustomPerk(field, target.value);
+        if ("value" in target) target.value = "";
+        readFormIntoWeapon();
+        scheduleSave();
+      }
+    }
+  });
 
   root.addEventListener("input", (e) => {
     const target = e.target;
@@ -507,7 +924,10 @@
       return;
     }
 
-    if (target.matches("#weapon-form [data-field]")) {
+    if (
+      target.matches("#weapon-form [data-field]") ||
+      target.matches("#weapon-form [data-perk-option]")
+    ) {
       if (target.matches('select[data-field="element"]')) {
         target.className = "el-select";
         if (target.value) target.classList.add(`el-${target.value}`);
@@ -577,7 +997,12 @@
       return;
     }
 
-    if (!target.matches("#weapon-form [data-field]")) return;
+    if (
+      !target.matches("#weapon-form [data-field]") &&
+      !target.matches("#weapon-form [data-perk-option]")
+    ) {
+      return;
+    }
 
     if (
       target.matches('[data-field="showPvePerk"], [data-field="showPvpPerk"]')
@@ -601,6 +1026,12 @@
     if (!actionable) return;
 
     const action = actionable.dataset.action;
+
+    if (action === "pick-db-version") {
+      const entry = findDbEntry(actionable.dataset.hash);
+      if (entry) applyDbVersion(entry);
+      return;
+    }
 
     if (action === "select-section") {
       syncAllFromDom();

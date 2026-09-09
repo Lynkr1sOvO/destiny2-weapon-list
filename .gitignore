@@ -6,3 +6,6 @@ Thumbs.db
 # 本地一键发布脚本，不推送到仓库
 publish.bat
 publish.ps1
+
+# 完整 Destiny Manifest（体积过大，仅用于本地生成武器库）
+aggregate-*.json
