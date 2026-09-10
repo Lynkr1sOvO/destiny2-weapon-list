@@ -919,6 +919,201 @@ th.th-pvp {
   opacity: 0.85;
 }
 
+.db-search-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.db-search-label-row label {
+  margin-bottom: 0;
+}
+
+.db-filter-help-open-btn {
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  padding: 0.35rem 0.75rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gold-soft);
+  background: rgba(212, 175, 95, 0.08);
+  cursor: pointer;
+}
+
+.db-filter-help-open-btn:hover {
+  background: rgba(212, 175, 95, 0.18);
+  color: var(--gold);
+}
+
+.db-filter-help-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.db-filter-help-modal[hidden] {
+  display: none !important;
+}
+
+.db-filter-help-panel {
+  width: min(720px, 100%);
+  max-height: min(84vh, 900px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--radius) + 2px);
+  background: var(--bg-panel);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.db-filter-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.db-filter-help-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--text);
+}
+
+.db-filter-help-close {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-mute);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.1rem 0.35rem;
+}
+
+.db-filter-help-close:hover {
+  color: var(--gold-soft);
+}
+
+.db-filter-help-intro {
+  margin: 0;
+  padding: 0.85rem 1.1rem 0.5rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.db-filter-help-intro code {
+  font-size: 0.82em;
+  color: var(--gold-soft);
+}
+
+.db-filter-help-search-wrap {
+  padding: 0.5rem 1.1rem 0.75rem;
+}
+
+.db-filter-help-search-wrap input {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  font: inherit;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+
+.db-filter-help-search-wrap input:focus {
+  outline: 1px solid var(--gold);
+  border-color: var(--gold);
+}
+
+.db-filter-help-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border-top: 1px solid var(--line);
+}
+
+.db-filter-help-table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+  table-layout: fixed;
+}
+
+.db-filter-help-table th,
+.db-filter-help-table td {
+  height: auto;
+  max-height: none;
+  padding: 0.65rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.db-filter-help-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  background: var(--bg-panel);
+}
+
+.db-filter-help-table th:first-child,
+.db-filter-help-cmd {
+  width: 42%;
+}
+
+.db-filter-help-cmd code {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: rgba(212, 175, 95, 0.1);
+  color: var(--gold-soft);
+  cursor: pointer;
+  font-size: 0.8em;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.db-filter-help-cmd code:hover {
+  background: rgba(212, 175, 95, 0.22);
+}
+
+.db-filter-help-desc {
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+
+.db-filter-help-empty {
+  text-align: center;
+  color: var(--text-mute);
+  padding: 1.5rem 1rem !important;
+}
+
+body.db-filter-help-open {
+  overflow: hidden;
+}
+
 .db-hint,
 .db-empty,
 .db-match-count {
@@ -932,12 +1127,10 @@ th.th-pvp {
   font-weight: 600;
 }
 
-.db-weapon-table .db-perk-cell {
-  font-size: 0.78rem;
-  line-height: 1.35;
-  white-space: normal;
-  min-width: 12rem;
-  max-width: 22rem;
+.db-weapon-table th,
+.db-weapon-table td {
+  text-align: center;
+  vertical-align: middle;
 }
 
 .db-weapon-table .db-season-cell {

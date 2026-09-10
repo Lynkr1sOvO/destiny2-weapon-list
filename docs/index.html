@@ -930,6 +930,201 @@ th.th-pvp {
   opacity: 0.85;
 }
 
+.db-search-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.db-search-label-row label {
+  margin-bottom: 0;
+}
+
+.db-filter-help-open-btn {
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  padding: 0.35rem 0.75rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gold-soft);
+  background: rgba(212, 175, 95, 0.08);
+  cursor: pointer;
+}
+
+.db-filter-help-open-btn:hover {
+  background: rgba(212, 175, 95, 0.18);
+  color: var(--gold);
+}
+
+.db-filter-help-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.db-filter-help-modal[hidden] {
+  display: none !important;
+}
+
+.db-filter-help-panel {
+  width: min(720px, 100%);
+  max-height: min(84vh, 900px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--radius) + 2px);
+  background: var(--bg-panel);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.db-filter-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.db-filter-help-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--text);
+}
+
+.db-filter-help-close {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-mute);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.1rem 0.35rem;
+}
+
+.db-filter-help-close:hover {
+  color: var(--gold-soft);
+}
+
+.db-filter-help-intro {
+  margin: 0;
+  padding: 0.85rem 1.1rem 0.5rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.db-filter-help-intro code {
+  font-size: 0.82em;
+  color: var(--gold-soft);
+}
+
+.db-filter-help-search-wrap {
+  padding: 0.5rem 1.1rem 0.75rem;
+}
+
+.db-filter-help-search-wrap input {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  font: inherit;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+
+.db-filter-help-search-wrap input:focus {
+  outline: 1px solid var(--gold);
+  border-color: var(--gold);
+}
+
+.db-filter-help-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border-top: 1px solid var(--line);
+}
+
+.db-filter-help-table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+  table-layout: fixed;
+}
+
+.db-filter-help-table th,
+.db-filter-help-table td {
+  height: auto;
+  max-height: none;
+  padding: 0.65rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.db-filter-help-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  background: var(--bg-panel);
+}
+
+.db-filter-help-table th:first-child,
+.db-filter-help-cmd {
+  width: 42%;
+}
+
+.db-filter-help-cmd code {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: rgba(212, 175, 95, 0.1);
+  color: var(--gold-soft);
+  cursor: pointer;
+  font-size: 0.8em;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.db-filter-help-cmd code:hover {
+  background: rgba(212, 175, 95, 0.22);
+}
+
+.db-filter-help-desc {
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+
+.db-filter-help-empty {
+  text-align: center;
+  color: var(--text-mute);
+  padding: 1.5rem 1rem !important;
+}
+
+body.db-filter-help-open {
+  overflow: hidden;
+}
+
 .db-hint,
 .db-empty,
 .db-match-count {
@@ -943,12 +1138,10 @@ th.th-pvp {
   font-weight: 600;
 }
 
-.db-weapon-table .db-perk-cell {
-  font-size: 0.78rem;
-  line-height: 1.35;
-  white-space: normal;
-  min-width: 12rem;
-  max-width: 22rem;
+.db-weapon-table th,
+.db-weapon-table td {
+  text-align: center;
+  vertical-align: middle;
 }
 
 .db-weapon-table .db-season-cell {
@@ -1732,24 +1925,41 @@ th.th-pvp {
 
     <div id="view-db" class="view-panel" hidden>
       <div class="db-search-block">
-        <label for="db-search">武器库搜索</label>
-        <input id="db-search" type="search" placeholder="例如：烈日 榴弹发射器 嫉妒刺客 诱导推销" autocomplete="off" spellcheck="false" />
+        <div class="db-search-label-row">
+          <label for="db-search">武器库搜索</label>
+          <button type="button" class="db-filter-help-open-btn" id="db-filter-help-open">过滤器指南</button>
+        </div>
+        <input id="db-search" type="search" placeholder="例如：is:solar is:grenadelauncher perkname:嫉妒刺客+诱导推销" autocomplete="off" spellcheck="false" />
       </div>
 
-      <details class="db-rules" open>
-        <summary>输入规则</summary>
-        <div class="db-rules-body">
-          <ul>
-            <li>多个条件用<strong>空格</strong>分开，须<strong>同时满足</strong>。</li>
-            <li>可直接写：属性、武器类型、弹药、反勇士、框架（支持简称，如「高冲」）、赛季（如 <code>S27</code>）。</li>
-            <li>其余词匹配武器名或 Perk；两个特性词须<strong>一个在第三栏、一个在第四栏</strong>（可互换）。</li>
-          </ul>
-          <p><strong>示例</strong>：<code>烈日 榴弹发射器 嫉妒刺客 诱导推销</code>　<code>高冲 狙击步枪</code>　<code>S27 手炮</code></p>
-        </div>
-      </details>
-
-      <p id="db-hint" class="db-hint">输入条件后显示结果</p>
+      <p id="db-hint" class="db-hint">输入条件后显示结果。点击「过滤器指南」查看全部命令。</p>
       <div id="db-results"></div>
+    </div>
+  </div>
+
+  <div id="db-filter-help-modal" class="db-filter-help-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="db-filter-help-title">
+    <div class="db-filter-help-panel">
+      <header class="db-filter-help-header">
+        <h2 id="db-filter-help-title">过滤器</h2>
+        <button type="button" class="db-filter-help-close" id="db-filter-help-close" aria-label="关闭">×</button>
+      </header>
+      <p class="db-filter-help-intro">
+        可用空格（AND）、<code>or</code>、<code>not</code> / <code>-</code> 与括号组合条件。例：
+        <code>(is:handcannon is:solar) or (is:pulse is:arc)</code>；
+        <code>perkname:嫉妒刺客+诱导推销</code> 要求分列，
+        <code>perkname:A perkname:B</code> 不要求分列。点击命令可插入搜索框。
+      </p>
+      <div class="db-filter-help-search-wrap">
+        <input id="db-filter-help-search" type="search" placeholder="搜索可用的过滤器命令" autocomplete="off" />
+      </div>
+      <div class="db-filter-help-table-wrap">
+        <table class="db-filter-help-table">
+          <thead>
+            <tr><th>过滤器</th><th>描述</th></tr>
+          </thead>
+          <tbody id="db-filter-help-body"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -9182,15 +9392,104 @@ function enrichWeaponsWithBungieHash(data, dbList) {
 }
 </script>
   <script>/**
- * 完整武器库视图：查询解析 + 过滤渲染
+ * 完整武器库视图：DIM 风格查询 + 过滤渲染
  * 依赖：WEAPONS_DB、WEAPON_TYPES、AMMO_TYPES、ELEMENT_ALIASES、CHAMP_ALIASES、
  *       lightggItemUrl、resolveWeaponItemHash
  */
 
 const DB_ELEMENTS = ["动能", "烈日", "电弧", "虚空", "冰影", "缚丝"];
 const DB_CHAMPS = ["屏障", "过载", "势不可挡"];
-const DB_TYPE_ALIASES = {
+
+/** is: 英文 / 别名 → 规范中文值 */
+const IS_ELEMENT = {
+  kinetic: "动能",
+  动能: "动能",
+  solar: "烈日",
+  烈日: "烈日",
+  太阳: "烈日",
+  arc: "电弧",
+  电弧: "电弧",
+  弧光: "电弧",
+  void: "虚空",
+  虚空: "虚空",
+  stasis: "冰影",
+  冰影: "冰影",
+  冻结: "冰影",
+  strand: "缚丝",
+  缚丝: "缚丝",
+  源质: "缚丝",
+};
+
+const IS_AMMO = {
+  primary: "主要",
+  主要: "主要",
+  special: "特殊",
+  特殊: "特殊",
+  heavy: "威能",
+  威能: "威能",
+  power: "威能",
+};
+
+const IS_CHAMP = {
+  unstoppable: "势不可挡",
+  势不可挡: "势不可挡",
+  压制: "势不可挡",
+  barrier: "屏障",
+  屏障: "屏障",
+  破障: "屏障",
+  overload: "过载",
+  过载: "过载",
+};
+
+const IS_WEAPON_TYPE = {
+  handcannon: "手炮",
+  手炮: "手炮",
+  autorifle: "自动步枪",
+  auto: "自动步枪",
+  自动步枪: "自动步枪",
+  pulserifle: "脉冲步枪",
+  pulse: "脉冲步枪",
+  脉冲步枪: "脉冲步枪",
+  scoutrifle: "斥候步枪",
+  scout: "斥候步枪",
+  斥候步枪: "斥候步枪",
+  smg: "微型冲锋枪",
+  submachinegun: "微型冲锋枪",
+  微型冲锋枪: "微型冲锋枪",
+  sidearm: "手枪",
+  手枪: "手枪",
+  shotgun: "霰弹枪",
+  霰弹枪: "霰弹枪",
+  sniper: "狙击步枪",
+  sniperrifle: "狙击步枪",
+  狙击步枪: "狙击步枪",
+  fusion: "融合步枪",
+  fusionrifle: "融合步枪",
+  融合步枪: "融合步枪",
+  linearfusion: "线性融合步枪",
+  linearfusionrifle: "线性融合步枪",
+  lfr: "线性融合步枪",
+  线性融合步枪: "线性融合步枪",
+  trace: "追踪步枪",
+  tracerifle: "追踪步枪",
+  追踪步枪: "追踪步枪",
+  grenadelauncher: "榴弹发射器",
+  gl: "榴弹发射器",
+  榴弹发射器: "榴弹发射器",
+  rocket: "火箭发射器",
+  rocketlauncher: "火箭发射器",
+  火箭发射器: "火箭发射器",
+  machinegun: "机枪",
+  mg: "机枪",
+  lmg: "机枪",
+  机枪: "机枪",
+  sword: "刀剑",
+  刀剑: "刀剑",
+  bow: "战斗弓箭",
+  战斗弓箭: "战斗弓箭",
   弓箭: "战斗弓箭",
+  glaive: "偃月",
+  偃月: "偃月",
 };
 
 function escapeDbHtml(str) {
@@ -9219,161 +9518,38 @@ function normalizeFrameKey(frame) {
 function buildDbCatalogs(entries) {
   const frameSet = new Set();
   const seasonNumbers = new Set();
-  const seasonNameToNums = new Map();
   for (const w of entries) {
     const fk = normalizeFrameKey(w.frame);
     if (fk) frameSet.add(fk);
     if (w.seasonNumber != null && w.seasonNumber !== "") {
       const n = Number(w.seasonNumber);
-      if (Number.isFinite(n)) {
-        seasonNumbers.add(n);
-        const name = String(w.seasonName || "").trim();
-        if (name) {
-          if (!seasonNameToNums.has(name)) seasonNameToNums.set(name, new Set());
-          seasonNameToNums.get(name).add(n);
-        }
-      }
+      if (Number.isFinite(n)) seasonNumbers.add(n);
     }
   }
-  const frames = [...frameSet].sort((a, b) => b.length - a.length || a.localeCompare(b, "zh-CN"));
-  return { frames, seasonNumbers, seasonNameToNums };
+  const frames = [...frameSet].sort(
+    (a, b) => b.length - a.length || a.localeCompare(b, "zh-CN")
+  );
+  return { frames, seasonNumbers };
 }
 
-/** 模糊匹配框架：如「高冲」→「高冲击力」「高冲击力长弓」等 */
-function resolveFrameTokens(token, frameCatalog) {
-  const key = normalizeFrameKey(token);
-  if (!key || key.length < 1) return [];
-  const lower = key.toLowerCase();
-  const hits = frameCatalog.filter((f) => {
-    const fl = f.toLowerCase();
-    return fl.includes(lower);
-  });
-  if (!hits.length) return [];
-  // 优先更「贴切」的：以 token 开头，或最短包含
-  hits.sort((a, b) => {
-    const aStarts = a.toLowerCase().startsWith(lower) ? 0 : 1;
-    const bStarts = b.toLowerCase().startsWith(lower) ? 0 : 1;
-    if (aStarts !== bStarts) return aStarts - bStarts;
-    return a.length - b.length || a.localeCompare(b, "zh-CN");
-  });
-  return hits;
+function frameMatches(entryFrame, query) {
+  const fk = normalizeFrameKey(entryFrame).toLowerCase();
+  const q = normalizeFrameKey(query).toLowerCase();
+  if (!q) return false;
+  return fk.includes(q);
 }
 
-function parseSeasonToken(token, catalogs) {
-  const raw = String(token || "").trim();
-  let m = raw.match(/^s(?:eason)?\s*([0-9]{1,2})$/i);
+function parseSeasonValue(raw) {
+  const s = String(raw || "").trim();
+  let m = s.match(/^s(?:eason)?\s*([0-9]{1,2})$/i);
   if (m) return Number(m[1]);
-  m = raw.match(/^赛季\s*([0-9]{1,2})$/);
+  m = s.match(/^赛季\s*([0-9]{1,2})$/);
   if (m) return Number(m[1]);
-  m = raw.match(/^第\s*([0-9]{1,2})\s*赛季$/);
+  m = s.match(/^第\s*([0-9]{1,2})\s*赛季$/);
   if (m) return Number(m[1]);
-  m = raw.match(/^([0-9]{1,2})$/);
-  if (m && catalogs.seasonNumbers.has(Number(m[1]))) {
-    // 纯数字仅当库中确有该赛季时视为赛季，避免误伤
-    return Number(m[1]);
-  }
-  // 赛季名包含匹配（较长名优先，在外层已排序调用方控制）
-  for (const [name, nums] of catalogs.seasonNameToNums) {
-    if (name.includes(raw) || raw.includes(name)) {
-      return [...nums][0];
-    }
-  }
+  m = s.match(/^([0-9]{1,2})$/);
+  if (m) return Number(m[1]);
   return null;
-}
-
-/**
- * @param {string} raw
- * @param {{ frames: string[], seasonNumbers: Set<number>, seasonNameToNums: Map<string, Set<number>> }} catalogs
- */
-function parseDbQuery(raw, catalogs) {
-  const text = String(raw || "")
-    .replace(/\u3000/g, " ")
-    .trim();
-  if (!text) {
-    return {
-      empty: true,
-      elements: [],
-      weaponTypes: [],
-      ammos: [],
-      champs: [],
-      frames: [],
-      seasons: [],
-      mustInclude: [],
-    };
-  }
-
-  const cat = catalogs || { frames: [], seasonNumbers: new Set(), seasonNameToNums: new Map() };
-  const tokens = text.split(/\s+/).filter(Boolean);
-  const elements = [];
-  const weaponTypes = [];
-  const ammos = [];
-  const champs = [];
-  const frames = [];
-  const seasons = [];
-  const mustInclude = [];
-
-  const typesByLen = [...WEAPON_TYPES].sort((a, b) => b.length - a.length);
-
-  for (const token of tokens) {
-    const elNorm = normalizeElementName(token);
-    if (DB_ELEMENTS.includes(elNorm)) {
-      if (!elements.includes(elNorm)) elements.push(elNorm);
-      continue;
-    }
-    if (DB_ELEMENTS.includes(token)) {
-      if (!elements.includes(token)) elements.push(token);
-      continue;
-    }
-
-    const champNorm = normalizeChampName(token);
-    if (DB_CHAMPS.includes(champNorm)) {
-      if (!champs.includes(champNorm)) champs.push(champNorm);
-      continue;
-    }
-    if (DB_CHAMPS.includes(token)) {
-      if (!champs.includes(token)) champs.push(token);
-      continue;
-    }
-
-    if (AMMO_TYPES.includes(token)) {
-      if (!ammos.includes(token)) ammos.push(token);
-      continue;
-    }
-
-    const typeAlias = DB_TYPE_ALIASES[token] || token;
-    const typeHit = typesByLen.find((t) => t === typeAlias || t === token);
-    if (typeHit) {
-      if (!weaponTypes.includes(typeHit)) weaponTypes.push(typeHit);
-      continue;
-    }
-
-    const seasonNum = parseSeasonToken(token, cat);
-    if (seasonNum != null && cat.seasonNumbers.has(seasonNum)) {
-      if (!seasons.includes(seasonNum)) seasons.push(seasonNum);
-      continue;
-    }
-
-    const frameHits = resolveFrameTokens(token, cat.frames);
-    if (frameHits.length) {
-      for (const f of frameHits) {
-        if (!frames.includes(f)) frames.push(f);
-      }
-      continue;
-    }
-
-    mustInclude.push(token);
-  }
-
-  return {
-    empty: false,
-    elements,
-    weaponTypes,
-    ammos,
-    champs,
-    frames,
-    seasons,
-    mustInclude,
-  };
 }
 
 function slotPoolText(entry, key) {
@@ -9381,85 +9557,272 @@ function slotPoolText(entry, key) {
   return list.join(" ").toLowerCase();
 }
 
+function allPerkPoolText(entry) {
+  return ["perk1", "perk2", "perk3", "perk4"]
+    .map((k) => slotPoolText(entry, k))
+    .join(" ");
+}
+
 function poolIncludes(poolText, token) {
   return poolText.includes(String(token).toLowerCase());
 }
 
-/**
- * perk3 / perk4 交叉：多个特性词须能分到不同列（2 个时即一列一个）。
- * 名称 / 框架 / 原始特性 / perk1–2 可单独满足自由词。
- */
-function matchFreeTokens(entry, tokens) {
-  if (!tokens.length) return true;
-
-  const general = [
-    entry.name,
-    entry.frame,
-    entry.originTrait,
-    slotPoolText(entry, "perk1"),
-    slotPoolText(entry, "perk2"),
-  ]
-    .join(" ")
-    .toLowerCase();
+/** perk3/perk4 分列：两个特性各占一栏 */
+function matchExclusivePerkPair(entry, a, b) {
   const p3 = slotPoolText(entry, "perk3");
   const p4 = slotPoolText(entry, "perk4");
+  const ta = String(a).toLowerCase();
+  const tb = String(b).toLowerCase();
+  const a3 = poolIncludes(p3, ta);
+  const a4 = poolIncludes(p4, ta);
+  const b3 = poolIncludes(p3, tb);
+  const b4 = poolIncludes(p4, tb);
+  return (a3 && b4) || (a4 && b3);
+}
 
-  const traitTokens = [];
-
-  for (const token of tokens) {
-    const t = String(token).toLowerCase();
-    const inGeneral = general.includes(t);
-    const inP3 = poolIncludes(p3, t);
-    const inP4 = poolIncludes(p4, t);
-
-    if (!inGeneral && !inP3 && !inP4) return false;
-
-    // 出现在特性栏的词走交叉分配；仅名称/框架等命中则已满足
-    if (inP3 || inP4) {
-      traitTokens.push({ token: t, inP3, inP4 });
-    }
+/** 多个特性在 perk3/perk4 上可分列分配（最多 2 个） */
+function matchExclusivePerkGroup(entry, parts) {
+  const list = parts.map((p) => String(p).trim()).filter(Boolean);
+  if (!list.length) return true;
+  if (list.length === 1) {
+    return poolIncludes(allPerkPoolText(entry), list[0]);
   }
-
-  if (!traitTokens.length) return true;
-  if (traitTokens.length === 1) {
-    return traitTokens[0].inP3 || traitTokens[0].inP4;
+  if (list.length === 2) {
+    return matchExclusivePerkPair(entry, list[0], list[1]);
   }
-  if (traitTokens.length === 2) {
-    const [a, b] = traitTokens;
-    return (a.inP3 && b.inP4) || (a.inP4 && b.inP3);
-  }
-
-  // 超过 2 个特性词：无法在 perk3/perk4 各占一列全部满足
   return false;
 }
 
-function matchDbEntry(entry, parsed) {
-  if (parsed.elements.length) {
-    const el = normalizeElementName(entry.element) || entry.element;
-    if (!parsed.elements.includes(el)) return false;
+function matchAnyPerk(entry, name) {
+  return poolIncludes(allPerkPoolText(entry), name);
+}
+
+function resolveIsFilter(value) {
+  const key = String(value || "").trim();
+  const lower = key.toLowerCase();
+  if (IS_ELEMENT[lower] || IS_ELEMENT[key]) {
+    return { kind: "element", value: IS_ELEMENT[lower] || IS_ELEMENT[key] };
   }
-  if (parsed.weaponTypes.length) {
-    if (!parsed.weaponTypes.includes(entry.weaponType)) return false;
+  if (IS_AMMO[lower] || IS_AMMO[key]) {
+    return { kind: "ammo", value: IS_AMMO[lower] || IS_AMMO[key] };
   }
-  if (parsed.ammos.length) {
-    if (!parsed.ammos.includes(entry.ammoType)) return false;
+  if (IS_CHAMP[lower] || IS_CHAMP[key]) {
+    return { kind: "champ", value: IS_CHAMP[lower] || IS_CHAMP[key] };
   }
-  if (parsed.champs.length) {
-    const c = normalizeChampName(entry.antiChamp) || entry.antiChamp;
-    if (!parsed.champs.includes(c)) return false;
+  if (IS_WEAPON_TYPE[lower] || IS_WEAPON_TYPE[key]) {
+    return {
+      kind: "weaponType",
+      value: IS_WEAPON_TYPE[lower] || IS_WEAPON_TYPE[key],
+    };
   }
-  if (parsed.frames && parsed.frames.length) {
-    const fk = normalizeFrameKey(entry.frame);
-    if (!parsed.frames.includes(fk)) return false;
+  // 直接匹配库内武器类型名
+  if (typeof WEAPON_TYPES !== "undefined" && WEAPON_TYPES.includes(key)) {
+    return { kind: "weaponType", value: key };
   }
-  if (parsed.seasons && parsed.seasons.length) {
-    const n = Number(entry.seasonNumber);
-    if (!parsed.seasons.includes(n)) return false;
+  return { kind: "unknown", value: key };
+}
+
+/* ---------- 词法 / 语法 ---------- */
+
+function tokenizeDimQuery(raw) {
+  const text = String(raw || "")
+    .replace(/\u3000/g, " ")
+    .trim();
+  if (!text) return [];
+  const out = [];
+  const re = /\(|\)|[^\s()]+/g;
+  let m;
+  while ((m = re.exec(text))) {
+    out.push(m[0]);
   }
-  if (parsed.mustInclude.length) {
-    if (!matchFreeTokens(entry, parsed.mustInclude)) return false;
+  return out;
+}
+
+function parseFilterTerm(rawToken) {
+  let token = String(rawToken || "");
+  let negated = false;
+  if (token.startsWith("-") && token.length > 1) {
+    negated = true;
+    token = token.slice(1);
+  }
+
+  const colon = token.indexOf(":");
+  let term;
+  if (colon > 0) {
+    const key = token.slice(0, colon).toLowerCase();
+    const value = token.slice(colon + 1);
+    term = { type: "filter", key, value };
+  } else {
+    term = { type: "filter", key: "name", value: token };
+  }
+
+  if (negated) return { type: "not", node: term };
+  return term;
+}
+
+function parseDimAst(tokens) {
+  let i = 0;
+
+  function peek() {
+    return tokens[i];
+  }
+
+  function consume() {
+    return tokens[i++];
+  }
+
+  function parseOr() {
+    let left = parseAnd();
+    while (peek() && String(peek()).toLowerCase() === "or") {
+      consume();
+      const right = parseAnd();
+      left = { type: "or", left, right };
+    }
+    return left;
+  }
+
+  function parseAnd() {
+    let left = parseUnary();
+    while (peek()) {
+      const p = String(peek()).toLowerCase();
+      if (p === "or" || p === ")") break;
+      if (p === "and") {
+        consume();
+        const right = parseUnary();
+        left = { type: "and", left, right };
+        continue;
+      }
+      // 隐式 and
+      const right = parseUnary();
+      left = { type: "and", left, right };
+    }
+    return left;
+  }
+
+  function parseUnary() {
+    const p = peek();
+    if (!p) return { type: "filter", key: "name", value: "" };
+    if (String(p).toLowerCase() === "not") {
+      consume();
+      return { type: "not", node: parseUnary() };
+    }
+    return parsePrimary();
+  }
+
+  function parsePrimary() {
+    const p = peek();
+    if (!p) return { type: "filter", key: "name", value: "" };
+    if (p === "(") {
+      consume();
+      const node = parseOr();
+      if (peek() === ")") consume();
+      return node;
+    }
+    return parseFilterTerm(consume());
+  }
+
+  if (!tokens.length) return null;
+  const ast = parseOr();
+  return ast;
+}
+
+/**
+ * @returns {{ empty: true } | { empty: false, ast: object }}
+ */
+function parseDbQuery(raw) {
+  const text = String(raw || "")
+    .replace(/\u3000/g, " ")
+    .trim();
+  if (!text) return { empty: true };
+  const tokens = tokenizeDimQuery(text);
+  if (!tokens.length) return { empty: true };
+  const ast = parseDimAst(tokens);
+  if (!ast) return { empty: true };
+  return { empty: false, ast };
+}
+
+function evalFilter(entry, filter, catalogs) {
+  const key = filter.key;
+  const value = String(filter.value || "").trim();
+  if (!value && key !== "name") return false;
+
+  if (key === "name") {
+    if (!value) return true;
+    return String(entry.name || "")
+      .toLowerCase()
+      .includes(value.toLowerCase());
+  }
+
+  if (key === "is") {
+    const resolved = resolveIsFilter(value);
+    if (resolved.kind === "element") {
+      const el = normalizeElementName(entry.element) || entry.element;
+      return el === resolved.value;
+    }
+    if (resolved.kind === "ammo") {
+      return entry.ammoType === resolved.value;
+    }
+    if (resolved.kind === "champ") {
+      const c = normalizeChampName(entry.antiChamp) || entry.antiChamp;
+      return c === resolved.value;
+    }
+    if (resolved.kind === "weaponType") {
+      return entry.weaponType === resolved.value;
+    }
+    return false;
+  }
+
+  if (key === "ammo") {
+    const resolved = IS_AMMO[value.toLowerCase()] || IS_AMMO[value] || value;
+    return entry.ammoType === resolved;
+  }
+
+  if (key === "frame") {
+    return frameMatches(entry.frame, value);
+  }
+
+  if (key === "season") {
+    const n = parseSeasonValue(value);
+    if (n == null) return false;
+    return Number(entry.seasonNumber) === n;
+  }
+
+  if (key === "perkname" || key === "perk") {
+    if (value.includes("+")) {
+      const parts = value.split("+").map((p) => p.trim()).filter(Boolean);
+      return matchExclusivePerkGroup(entry, parts);
+    }
+    return matchAnyPerk(entry, value);
+  }
+
+  // 未知 key：不匹配
+  return false;
+}
+
+function evalAst(node, entry, catalogs) {
+  if (!node) return true;
+  if (node.type === "and") {
+    return (
+      evalAst(node.left, entry, catalogs) && evalAst(node.right, entry, catalogs)
+    );
+  }
+  if (node.type === "or") {
+    return (
+      evalAst(node.left, entry, catalogs) || evalAst(node.right, entry, catalogs)
+    );
+  }
+  if (node.type === "not") {
+    return !evalAst(node.node, entry, catalogs);
+  }
+  if (node.type === "filter") {
+    return evalFilter(entry, node, catalogs);
   }
   return true;
+}
+
+function matchDbEntry(entry, parsed, catalogs) {
+  if (!parsed || parsed.empty) return false;
+  return evalAst(parsed.ast, entry, catalogs);
 }
 
 function dbTypeSortIndex(type) {
@@ -9477,9 +9840,11 @@ function compareDbEntries(a, b) {
   return String(a.name || "").localeCompare(String(b.name || ""), "zh-CN");
 }
 
-function filterWeaponsDb(entries, parsed) {
+function filterWeaponsDb(entries, parsed, catalogs) {
   if (!parsed || parsed.empty) return [];
-  return entries.filter((e) => matchDbEntry(e, parsed)).sort(compareDbEntries);
+  return entries
+    .filter((e) => matchDbEntry(e, parsed, catalogs))
+    .sort(compareDbEntries);
 }
 
 function formatDbSeason(entry) {
@@ -9493,18 +9858,6 @@ function formatDbSeason(entry) {
   }
   if (entry.eventName) parts.push(entry.eventName);
   return parts.join(" · ") || "—";
-}
-
-function formatDbPerks(entry) {
-  const slots = entry.slots || {};
-  const lines = ["perk1", "perk2", "perk3", "perk4"]
-    .map((key, i) => {
-      const list = slots[key] || [];
-      if (!list.length) return "";
-      return `${i + 1}: ${list.join(" / ")}`;
-    })
-    .filter(Boolean);
-  return lines.length ? lines.join("\n") : "—";
 }
 
 function dbElementClass(element) {
@@ -9536,7 +9889,6 @@ function renderDbResultsTable(matches) {
           )}</a>`
         : escapeDbHtml(w.name || "—");
       const frameRpm = [w.frame, w.rpm].filter(Boolean).join(" / ") || "—";
-      const perks = formatDbPerks(w);
       return `<tr>
         <td class="name-cell">${nameCell}</td>
         <td class="type-cell">${escapeDbHtml(w.weaponType || "—")}</td>
@@ -9545,9 +9897,6 @@ function renderDbResultsTable(matches) {
         <td class="${dbElementClass(w.element)}">${escapeDbHtml(w.element || "—")}</td>
         <td class="champ">${escapeDbHtml(w.antiChamp || "—")}</td>
         <td class="db-season-cell">${escapeDbHtml(formatDbSeason(w))}</td>
-        <td class="db-perk-cell" title="${escapeDbHtml(perks)}">${escapeDbHtml(
-        perks
-      ).replace(/\n/g, "<br />")}</td>
       </tr>`;
     })
     .join("");
@@ -9563,7 +9912,6 @@ function renderDbResultsTable(matches) {
           <th>属性</th>
           <th>反勇士</th>
           <th>赛季/活动</th>
-          <th>Perk 池</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -9602,7 +9950,7 @@ function createWeaponsDbController(ctx) {
   }
 
   function render() {
-    const parsed = parseDbQuery(ctx.searchInput?.value || "", catalogs);
+    const parsed = parseDbQuery(ctx.searchInput?.value || "");
     if (parsed.empty) {
       if (ctx.hintEl) {
         ctx.hintEl.hidden = false;
@@ -9614,7 +9962,7 @@ function createWeaponsDbController(ctx) {
       return;
     }
 
-    const matches = filterWeaponsDb(all, parsed);
+    const matches = filterWeaponsDb(all, parsed, catalogs);
     if (ctx.hintEl) ctx.hintEl.hidden = true;
     if (ctx.resultsEl) {
       ctx.resultsEl.innerHTML = `
@@ -9636,6 +9984,290 @@ function createWeaponsDbController(ctx) {
   }
 
   return { render, getTotal: () => all.length, catalogs };
+}
+
+/** 本库支持的过滤器命令（用于指南弹窗，仅含已实现项） */
+const DB_FILTER_HELP = [
+  {
+    group: "语法",
+    commands: "空格 / and",
+    description: "相邻条件为 AND（须同时满足）。显式写 and 亦可。",
+  },
+  {
+    group: "语法",
+    commands: "or",
+    description: "逻辑或。例：(is:handcannon is:solar) or (is:pulse is:arc)",
+  },
+  {
+    group: "语法",
+    commands: "not / -",
+    description: "取反。例：not is:kinetic 或 -is:kinetic",
+  },
+  {
+    group: "语法",
+    commands: "( )",
+    description: "括号分组，改变运算优先级。",
+  },
+  {
+    group: "名称",
+    commands: "裸词 / name:",
+    description: "按武器名子串匹配。例：悖论 或 name:完美悖论",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:handcannon / is:手炮",
+    description: "手炮",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:autorifle / is:auto / is:自动步枪",
+    description: "自动步枪",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:pulserifle / is:pulse / is:脉冲步枪",
+    description: "脉冲步枪",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:scoutrifle / is:scout / is:斥候步枪",
+    description: "斥候步枪",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:smg / is:submachinegun / is:微型冲锋枪",
+    description: "微型冲锋枪",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:sidearm / is:手枪",
+    description: "手枪",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:shotgun / is:霰弹枪",
+    description: "霰弹枪",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:sniper / is:sniperrifle / is:狙击步枪",
+    description: "狙击步枪",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:fusion / is:fusionrifle / is:融合步枪",
+    description: "融合步枪",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:linearfusion / is:lfr / is:线性融合步枪",
+    description: "线性融合步枪",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:trace / is:tracerifle / is:追踪步枪",
+    description: "追踪步枪",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:grenadelauncher / is:gl / is:榴弹发射器",
+    description: "榴弹发射器",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:rocket / is:rocketlauncher / is:火箭发射器",
+    description: "火箭发射器",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:machinegun / is:mg / is:机枪",
+    description: "机枪",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:sword / is:刀剑",
+    description: "刀剑",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:bow / is:战斗弓箭 / is:弓箭",
+    description: "战斗弓箭",
+  },
+  {
+    group: "类型 is:",
+    commands: "is:glaive / is:偃月",
+    description: "偃月",
+  },
+  {
+    group: "属性 is:",
+    commands: "is:kinetic / is:动能",
+    description: "动能",
+  },
+  {
+    group: "属性 is:",
+    commands: "is:solar / is:烈日 / is:太阳",
+    description: "烈日",
+  },
+  {
+    group: "属性 is:",
+    commands: "is:arc / is:电弧 / is:弧光",
+    description: "电弧",
+  },
+  {
+    group: "属性 is:",
+    commands: "is:void / is:虚空",
+    description: "虚空",
+  },
+  {
+    group: "属性 is:",
+    commands: "is:stasis / is:冰影 / is:冻结",
+    description: "冰影",
+  },
+  {
+    group: "属性 is:",
+    commands: "is:strand / is:缚丝 / is:源质",
+    description: "缚丝",
+  },
+  {
+    group: "弹药",
+    commands: "is:primary / is:主要 / ammo:主要",
+    description: "主要弹药",
+  },
+  {
+    group: "弹药",
+    commands: "is:special / is:特殊 / ammo:特殊",
+    description: "特殊弹药",
+  },
+  {
+    group: "弹药",
+    commands: "is:heavy / is:威能 / ammo:威能",
+    description: "威能弹药",
+  },
+  {
+    group: "反勇士",
+    commands: "is:unstoppable / is:势不可挡 / is:压制",
+    description: "反势不可挡",
+  },
+  {
+    group: "反勇士",
+    commands: "is:barrier / is:屏障 / is:破障",
+    description: "反屏障",
+  },
+  {
+    group: "反勇士",
+    commands: "is:overload / is:过载",
+    description: "反过载",
+  },
+  {
+    group: "Perk",
+    commands: "perkname:名称 / perk:名称",
+    description: "perk 池（perk1–4）含子串即可。例：perkname:嫉妒刺客",
+  },
+  {
+    group: "Perk",
+    commands: "perkname:A+B",
+    description: "组合：A 与 B 须分别在 perk3 / perk4（分列，顺序不限）。例：perkname:嫉妒刺客+诱导推销",
+  },
+  {
+    group: "Perk",
+    commands: "perkname:A perkname:B",
+    description: "独立 AND：两 perk 各自在池中即可，不要求分列。",
+  },
+  {
+    group: "框架",
+    commands: "frame:",
+    description: "框架名模糊匹配。例：frame:高冲 → 高冲击力…",
+  },
+  {
+    group: "赛季",
+    commands: "season:",
+    description: "赛季号。例：season:27 或 season:S27",
+  },
+];
+
+function getDbFilterHelpEntries() {
+  return DB_FILTER_HELP;
+}
+
+function renderDbFilterHelpRows(entries) {
+  if (!entries.length) {
+    return `<tr><td colspan="2" class="db-filter-help-empty">没有匹配的过滤器</td></tr>`;
+  }
+  return entries
+    .map(
+      (e) => `<tr data-group="${escapeDbHtml(e.group)}">
+      <td class="db-filter-help-cmd"><code>${escapeDbHtml(e.commands)}</code></td>
+      <td class="db-filter-help-desc">${escapeDbHtml(e.description)}</td>
+    </tr>`
+    )
+    .join("");
+}
+
+/**
+ * 绑定过滤器指南弹窗（仿 DIM Filter Help）
+ * @param {{ openBtn: HTMLElement, modal: HTMLElement, searchInput: HTMLInputElement, tableBody: HTMLElement, closeBtns: NodeListOf<Element>|Element[], insertTarget?: HTMLInputElement }} opts
+ */
+function initDbFilterHelp(opts) {
+  const all = getDbFilterHelpEntries();
+  const modal = opts.modal;
+  const helpSearch = opts.searchInput;
+  const tbody = opts.tableBody;
+
+  function paint(q) {
+    const needle = String(q || "")
+      .trim()
+      .toLowerCase();
+    const filtered = !needle
+      ? all
+      : all.filter((e) => {
+          const hay = `${e.group} ${e.commands} ${e.description}`.toLowerCase();
+          return hay.includes(needle);
+        });
+    tbody.innerHTML = renderDbFilterHelpRows(filtered);
+  }
+
+  function open() {
+    modal.hidden = false;
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("db-filter-help-open");
+    paint(helpSearch.value);
+    helpSearch.focus();
+  }
+
+  function close() {
+    modal.hidden = true;
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("db-filter-help-open");
+  }
+
+  opts.openBtn?.addEventListener("click", open);
+  for (const btn of opts.closeBtns || []) {
+    btn.addEventListener("click", close);
+  }
+  modal?.addEventListener("click", (ev) => {
+    if (ev.target === modal) close();
+  });
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && modal && !modal.hidden) close();
+  });
+  helpSearch?.addEventListener("input", () => paint(helpSearch.value));
+
+  tbody?.addEventListener("click", (ev) => {
+    const code = ev.target.closest("code");
+    if (!code || !opts.insertTarget) return;
+    const text = code.textContent || "";
+    // 取第一个可粘贴片段（到空格或 / 前的完整示例优先整段 commands 的首个 token）
+    const first = text.split(/\s*\/\s*/)[0].trim();
+    if (!first) return;
+    const input = opts.insertTarget;
+    const cur = input.value.trim();
+    input.value = cur ? `${cur} ${first}` : first;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.focus();
+  });
+
+  paint("");
+  return { open, close, paint };
 }
 </script>
   <script>(function () {
@@ -9741,6 +10373,24 @@ function createWeaponsDbController(ctx) {
           onAfterRender: () => bindTableHScroll(),
         })
       : null;
+
+  if (typeof initDbFilterHelp === "function") {
+    const helpModal = document.getElementById("db-filter-help-modal");
+    const helpOpen = document.getElementById("db-filter-help-open");
+    const helpBody = document.getElementById("db-filter-help-body");
+    if (helpModal && helpOpen && helpBody) {
+      initDbFilterHelp({
+        openBtn: helpOpen,
+        modal: helpModal,
+        searchInput: document.getElementById("db-filter-help-search"),
+        tableBody: helpBody,
+        closeBtns: [
+          document.getElementById("db-filter-help-close"),
+        ].filter(Boolean),
+        insertTarget: document.getElementById("db-search"),
+      });
+    }
+  }
 
   let currentView = "list";
 

@@ -157,30 +157,67 @@
 
       <div id="view-db" class="view-panel" hidden>
         <div class="db-search-block">
-          <label for="db-search">武器库搜索</label>
+          <div class="db-search-label-row">
+            <label for="db-search">武器库搜索</label>
+            <button type="button" class="db-filter-help-open-btn" id="db-filter-help-open">
+              过滤器指南
+            </button>
+          </div>
           <input
             id="db-search"
             type="search"
-            placeholder="例如：烈日 榴弹发射器 嫉妒刺客 诱导推销"
+            placeholder="例如：is:solar is:grenadelauncher perkname:嫉妒刺客+诱导推销"
             autocomplete="off"
             spellcheck="false"
           />
         </div>
 
-        <details class="db-rules" open>
-          <summary>输入规则</summary>
-          <div class="db-rules-body">
-            <ul>
-              <li>多个条件用<strong>空格</strong>分开，须<strong>同时满足</strong>。</li>
-              <li>可直接写：属性、武器类型、弹药、反勇士、框架（支持简称，如「高冲」）、赛季（如 <code>S27</code>）。</li>
-              <li>其余词匹配武器名或 Perk；两个特性词须<strong>一个在第三栏、一个在第四栏</strong>（可互换）。</li>
-            </ul>
-            <p><strong>示例</strong>：<code>烈日 榴弹发射器 嫉妒刺客 诱导推销</code>　<code>高冲 狙击步枪</code>　<code>S27 手炮</code></p>
-          </div>
-        </details>
-
-        <p id="db-hint" class="db-hint">输入条件后显示结果</p>
+        <p id="db-hint" class="db-hint">输入条件后显示结果。点击「过滤器指南」查看全部命令。</p>
         <div id="db-results"></div>
+      </div>
+    </div>
+
+    <div
+      id="db-filter-help-modal"
+      class="db-filter-help-modal"
+      hidden
+      aria-hidden="true"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="db-filter-help-title"
+    >
+      <div class="db-filter-help-panel">
+        <header class="db-filter-help-header">
+          <h2 id="db-filter-help-title">过滤器</h2>
+          <button type="button" class="db-filter-help-close" id="db-filter-help-close" aria-label="关闭">
+            ×
+          </button>
+        </header>
+        <p class="db-filter-help-intro">
+          可用空格（AND）、<code>or</code>、<code>not</code> / <code>-</code> 与括号组合条件。例：
+          <code>(is:handcannon is:solar) or (is:pulse is:arc)</code>；
+          <code>perkname:嫉妒刺客+诱导推销</code> 要求分列，
+          <code>perkname:A perkname:B</code> 不要求分列。点击命令可插入搜索框。
+        </p>
+        <div class="db-filter-help-search-wrap">
+          <input
+            id="db-filter-help-search"
+            type="search"
+            placeholder="搜索可用的过滤器命令"
+            autocomplete="off"
+          />
+        </div>
+        <div class="db-filter-help-table-wrap">
+          <table class="db-filter-help-table">
+            <thead>
+              <tr>
+                <th>过滤器</th>
+                <th>描述</th>
+              </tr>
+            </thead>
+            <tbody id="db-filter-help-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 

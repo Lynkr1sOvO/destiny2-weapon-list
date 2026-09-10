@@ -102,6 +102,24 @@
         })
       : null;
 
+  if (typeof initDbFilterHelp === "function") {
+    const helpModal = document.getElementById("db-filter-help-modal");
+    const helpOpen = document.getElementById("db-filter-help-open");
+    const helpBody = document.getElementById("db-filter-help-body");
+    if (helpModal && helpOpen && helpBody) {
+      initDbFilterHelp({
+        openBtn: helpOpen,
+        modal: helpModal,
+        searchInput: document.getElementById("db-filter-help-search"),
+        tableBody: helpBody,
+        closeBtns: [
+          document.getElementById("db-filter-help-close"),
+        ].filter(Boolean),
+        insertTarget: document.getElementById("db-search"),
+      });
+    }
+  }
+
   let currentView = "list";
 
   function readViewFromHash() {
